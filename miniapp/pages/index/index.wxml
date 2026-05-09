@@ -1,0 +1,78 @@
+<view class="page index-page safe-bottom">
+  <view class="hero">
+    <view>
+      <view class="hero-label">今日营业中</view>
+      <view class="hero-title">星禾小馆</view>
+      <view class="hero-subtitle">现点现做 · 明厨出餐 · 门店自取</view>
+    </view>
+    <view class="hero-card">
+      <text>{{storeStats.productCount}}</text>
+      <text>款在售</text>
+    </view>
+  </view>
+
+  <view class="quick-row">
+    <view class="quick-item">
+      <text class="quick-value">{{storeStats.fastCount}}</text>
+      <text class="quick-label">快手餐品</text>
+    </view>
+    <view class="quick-item">
+      <text class="quick-value">{{cartSummary.totalQuantity}}</text>
+      <text class="quick-label">已选餐品</text>
+    </view>
+    <view class="quick-item">
+      <text class="quick-value">{{cartSummary.totalAmountText}}</text>
+      <text class="quick-label">购物车金额</text>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty">
+    <view class="empty-mark">餐</view>
+    <text>正在读取菜单</text>
+  </view>
+
+  <view wx:elif="{{errorMessage}}" class="empty">
+    <view class="empty-mark">!</view>
+    <text>{{errorMessage}}</text>
+    <button class="primary-btn retry-btn" bindtap="loadProducts">重新加载</button>
+  </view>
+
+  <view wx:elif="{{!viewProducts.length}}" class="empty">
+    <view class="empty-mark">空</view>
+    <text>暂无可售菜品</text>
+  </view>
+
+  <view wx:else class="menu-layout">
+    <scroll-view class="category-list" scroll-y>
+      <view
+        wx:for="{{categories}}"
+        wx:key="name"
+        class="category-item {{activeCategory === item.name ? 'active' : ''}}"
+        data-category="{{item.name}}"
+        bindtap="setCategory"
+      >
+        <text>{{item.name}}</text>
+        <text class="category-count">{{item.count}}</text>
+      </view>
+    </scroll-view>
+
+    <scroll-view class="product-list" scroll-y>
+      <product-card
+        wx:for="{{viewProducts}}"
+        wx:key="id"
+        product="{{item}}"
+        bind:cardtap="goDetail"
+        bind:addcart="addProduct"
+        bind:minuscart="minusProduct"
+      />
+    </scroll-view>
+  </view>
+
+  <view class="cart-bar {{cartSummary.totalQuantity ? 'active' : ''}}">
+    <view>
+      <view class="cart-title">已选 {{cartSummary.totalQuantity}} 件</view>
+      <view class="cart-price">¥{{cartSummary.totalAmountText}}</view>
+    </view>
+    <button class="cart-btn" disabled="{{!cartSummary.totalQuantity}}" bindtap="goConfirm">去结算</button>
+  </view>
+</view>

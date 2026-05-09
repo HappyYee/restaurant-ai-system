@@ -1,0 +1,29 @@
+<view class="product-card" bindtap="openDetail">
+  <image wx:if="{{product.imageUrl}}" class="product-image" src="{{product.imageUrl}}" mode="aspectFill" />
+  <view wx:else class="product-image fallback-cover">
+    <text>{{product.coverText}}</text>
+  </view>
+
+  <view class="product-info">
+    <view class="product-head">
+      <text class="product-name">{{product.name}}</text>
+      <text class="cook-time">{{product.cookTime}}分钟</text>
+    </view>
+    <view class="tag-row">
+      <text wx:for="{{product.tags}}" wx:key="*this" class="tag">{{item}}</text>
+    </view>
+    <text class="product-desc">{{product.description}}</text>
+    <view class="product-foot">
+      <text class="price">¥{{product.priceText}}</text>
+      <view class="stepper" catchtap="stopTap">
+        <button wx:if="{{product.cartQuantity > 0}}" class="qty-btn" catchtap="minusProduct">−</button>
+        <text wx:if="{{product.cartQuantity > 0}}" class="qty-text">{{product.cartQuantity}}</text>
+        <button
+          class="qty-btn add"
+          catchtap="addProduct"
+          disabled="{{product.stock <= product.cartQuantity}}"
+        >+</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "星禾点餐",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "product-card": "../../components/product-card/product-card"
+  },
+  "componentPlaceholder": {
+    "product-card": "view"
+  }
+}

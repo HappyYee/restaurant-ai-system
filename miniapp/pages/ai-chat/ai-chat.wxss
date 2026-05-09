@@ -1,0 +1,154 @@
+.ai-page {
+  padding-bottom: 40rpx;
+}
+
+.ai-head {
+  padding: 34rpx 30rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #111827, #0f766e);
+  color: #ffffff;
+}
+
+.ai-title {
+  font-size: 46rpx;
+  font-weight: 900;
+}
+
+.ai-subtitle {
+  margin-top: 12rpx;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 25rpx;
+}
+
+.prompt-panel {
+  margin-top: 22rpx;
+  padding: 22rpx;
+  border-radius: 20rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 36rpx rgba(15, 23, 42, 0.06);
+}
+
+.prompt-input {
+  width: 100%;
+  height: 170rpx;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  background: #f8fafc;
+  color: #111827;
+  font-size: 27rpx;
+  line-height: 1.5;
+  margin-bottom: 18rpx;
+}
+
+.preset-scroll {
+  width: 100%;
+  margin-top: 20rpx;
+  white-space: nowrap;
+}
+
+.preset-row {
+  display: inline-flex;
+  gap: 14rpx;
+  padding-bottom: 4rpx;
+}
+
+.preset-chip {
+  height: 64rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #374151;
+  font-size: 24rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.06);
+}
+
+.ai-empty {
+  min-height: 300rpx;
+}
+
+.plan-list {
+  margin-top: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.plan-card {
+  padding: 26rpx;
+  border-radius: 22rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 36rpx rgba(15, 23, 42, 0.06);
+}
+
+.plan-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.plan-name {
+  color: #111827;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.plan-reason {
+  margin-top: 10rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+.plan-total {
+  flex-shrink: 0;
+  color: #f97316;
+  font-size: 36rpx;
+  font-weight: 900;
+}
+
+.plan-items {
+  margin-top: 20rpx;
+  border-radius: 16rpx;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.plan-item {
+  min-height: 94rpx;
+  padding: 18rpx 20rpx;
+  border-top: 2rpx solid #eef2f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.plan-item:first-child {
+  border-top: 0;
+}
+
+.dish-name {
+  color: #111827;
+  font-size: 27rpx;
+  font-weight: 800;
+}
+
+.dish-meta {
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 22rpx;
+}
+
+.dish-price {
+  flex-shrink: 0;
+  color: #111827;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
+.plan-btn {
+  margin-top: 22rpx;
+}

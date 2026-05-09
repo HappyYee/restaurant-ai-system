@@ -1,0 +1,68 @@
+<view class="page confirm-page safe-bottom">
+  <view wx:if="{{!items.length}}" class="empty">
+    <view class="empty-mark">空</view>
+    <text>购物车还是空的</text>
+    <button class="primary-btn empty-btn" bindtap="goMenu">去点餐</button>
+  </view>
+
+  <view wx:else>
+    <view class="panel">
+      <view class="panel-title">订单餐品</view>
+      <view wx:for="{{items}}" wx:key="id" class="cart-item">
+        <image wx:if="{{item.imageUrl}}" class="item-image" src="{{item.imageUrl}}" mode="aspectFill" />
+        <view wx:else class="item-image fallback-cover">
+          <text>{{item.name}}</text>
+        </view>
+        <view class="item-main">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-meta">{{item.category}} · 库存 {{item.stock}}</view>
+          <view class="item-foot">
+            <text class="price">¥{{item.subtotalText}}</text>
+            <view class="stepper">
+              <button class="qty-btn" data-id="{{item.id}}" bindtap="decrease">−</button>
+              <text class="qty-text">{{item.quantity}}</text>
+              <button class="qty-btn add" data-id="{{item.id}}" bindtap="increase">+</button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">取餐信息</view>
+      <view class="pickup-card">
+        <view>
+          <view class="pickup-title">门店自取</view>
+          <view class="pickup-subtitle">星禾小馆 · 前台报手机号或订单号</view>
+        </view>
+        <view class="pickup-badge">自取</view>
+      </view>
+      <textarea
+        class="remark"
+        maxlength="120"
+        placeholder="口味、忌口、打包要求"
+        value="{{remark}}"
+        bindinput="onRemarkInput"
+      />
+    </view>
+
+    <view class="summary-panel">
+      <view class="summary-row">
+        <text>餐品数量</text>
+        <text>{{summary.totalQuantity}} 件</text>
+      </view>
+      <view class="summary-row total">
+        <text>应付合计</text>
+        <text>¥{{summary.totalAmountText}}</text>
+      </view>
+    </view>
+
+    <view class="submit-bar">
+      <view>
+        <view class="submit-label">合计</view>
+        <view class="submit-price">¥{{summary.totalAmountText}}</view>
+      </view>
+      <button class="primary-btn submit-btn" loading="{{submitting}}" bindtap="submitOrder">提交订单</button>
+    </view>
+  </view>
+</view>

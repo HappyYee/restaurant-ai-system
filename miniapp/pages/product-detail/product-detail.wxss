@@ -1,0 +1,145 @@
+.detail-page {
+  padding-bottom: 170rpx;
+}
+
+.hero-image {
+  width: 100%;
+  height: 420rpx;
+  border-radius: 22rpx;
+  overflow: hidden;
+}
+
+.detail-cover {
+  background: linear-gradient(135deg, #ecfeff, #fff7ed);
+  color: #0f766e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 128rpx;
+  font-weight: 900;
+}
+
+.detail-main {
+  margin-top: 22rpx;
+  padding: 28rpx;
+  border-radius: 20rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 36rpx rgba(15, 23, 42, 0.06);
+}
+
+.detail-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.name {
+  font-size: 42rpx;
+  font-weight: 900;
+  color: #111827;
+}
+
+.category {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #64748b;
+}
+
+.detail-head .price {
+  flex-shrink: 0;
+  font-size: 40rpx;
+}
+
+.tag-row {
+  margin-top: 22rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag {
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  background: #f1f5f9;
+  color: #0f766e;
+  font-size: 22rpx;
+}
+
+.section {
+  margin-top: 34rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #111827;
+}
+
+.description {
+  margin-top: 14rpx;
+  color: #4b5563;
+  font-size: 26rpx;
+  line-height: 1.65;
+}
+
+.stock-row,
+.quantity-row {
+  min-height: 96rpx;
+  margin-top: 20rpx;
+  border-top: 2rpx solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 28rpx;
+  color: #374151;
+}
+
+.stock-row text:last-child {
+  font-weight: 800;
+  color: #0f766e;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.qty-btn {
+  width: 58rpx;
+  height: 58rpx;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-size: 36rpx;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn.add {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.qty-text {
+  min-width: 44rpx;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.bottom-actions {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: calc(24rpx + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 18rpx;
+  padding: 18rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 18rpx 45rpx rgba(15, 23, 42, 0.16);
+}

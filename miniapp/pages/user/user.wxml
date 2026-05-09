@@ -1,0 +1,42 @@
+<view class="page user-page">
+  <view class="profile-card">
+    <view class="avatar">{{userInfo ? '客' : '未'}}</view>
+    <view class="profile-main">
+      <view class="nickname">{{userInfo ? userInfo.nickname : '未登录用户'}}</view>
+      <view class="profile-subtitle">{{userInfo ? '顾客编号 ' + userInfo.userId : '登录后可提交订单和查看历史订单'}}</view>
+    </view>
+    <button wx:if="{{!userInfo}}" class="login-btn" bindtap="login">登录</button>
+    <button wx:else class="login-btn muted-btn" bindtap="logout">退出</button>
+  </view>
+
+  <view class="stats-grid">
+    <view class="stat-card">
+      <text class="stat-value">{{cartSummary.totalQuantity}}</text>
+      <text class="stat-label">购物车餐品</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{cartSummary.totalAmountText}}</text>
+      <text class="stat-label">待结算金额</text>
+    </view>
+  </view>
+
+  <view class="menu-panel">
+    <view class="menu-row" bindtap="goMenu">
+      <text>继续点餐</text>
+      <text>›</text>
+    </view>
+    <view class="menu-row" bindtap="goOrders">
+      <text>我的订单</text>
+      <text>›</text>
+    </view>
+    <view class="menu-row" bindtap="goAi">
+      <text>智能点餐</text>
+      <text>›</text>
+    </view>
+  </view>
+
+  <view class="notice-card">
+    <view class="notice-title">门店取餐</view>
+    <view class="notice-text">订单提交后可在订单页查看制作状态，完成后到前台取餐。</view>
+  </view>
+</view>

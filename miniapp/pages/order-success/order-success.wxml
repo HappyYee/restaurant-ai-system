@@ -1,0 +1,23 @@
+<view class="page success-page">
+  <view class="success-card">
+    <view class="success-mark">✓</view>
+    <view class="success-title">订单已提交</view>
+    <view class="success-subtitle">后厨会尽快接单制作</view>
+
+    <view class="order-box">
+      <view class="order-row">
+        <text>订单编号</text>
+        <text>{{orderNo}}</text>
+      </view>
+      <view class="order-row">
+        <text>订单金额</text>
+        <text class="price">¥{{amountText}}</text>
+      </view>
+    </view>
+
+    <view class="action-grid">
+      <button class="ghost-btn" bindtap="goMenu">继续点餐</button>
+      <button class="primary-btn" bindtap="goOrders">查看订单</button>
+    </view>
+  </view>
+</view>

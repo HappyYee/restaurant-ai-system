@@ -1,0 +1,137 @@
+.profile-card {
+  min-height: 176rpx;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background: #111827;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  box-shadow: 0 18rpx 48rpx rgba(15, 23, 42, 0.14);
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #0f766e, #f97316);
+  color: #ffffff;
+  font-size: 42rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.nickname {
+  font-size: 34rpx;
+  font-weight: 900;
+}
+
+.profile-subtitle {
+  margin-top: 12rpx;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 23rpx;
+  line-height: 1.4;
+}
+
+.login-btn {
+  width: 116rpx;
+  height: 64rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #0f766e;
+  font-size: 24rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.muted-btn {
+  color: #64748b;
+}
+
+.stats-grid {
+  margin-top: 22rpx;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+}
+
+.stat-card {
+  min-height: 138rpx;
+  padding: 22rpx;
+  border-radius: 20rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 36rpx rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-value {
+  color: #111827;
+  font-size: 38rpx;
+  font-weight: 900;
+}
+
+.stat-label {
+  margin-top: 12rpx;
+  color: #64748b;
+  font-size: 23rpx;
+}
+
+.menu-panel,
+.notice-card {
+  margin-top: 22rpx;
+  border-radius: 20rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 36rpx rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.menu-row {
+  min-height: 96rpx;
+  padding: 0 26rpx;
+  border-top: 2rpx solid #f1f5f9;
+  color: #111827;
+  font-size: 28rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-row:first-child {
+  border-top: 0;
+}
+
+.menu-row text:last-child {
+  color: #94a3b8;
+  font-size: 42rpx;
+}
+
+.notice-card {
+  padding: 26rpx;
+}
+
+.notice-title {
+  color: #111827;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.notice-text {
+  margin-top: 12rpx;
+  color: #64748b;
+  font-size: 25rpx;
+  line-height: 1.6;
+}

@@ -1,0 +1,43 @@
+<view class="page order-page">
+  <view class="page-head">
+    <view>
+      <view class="page-title">我的订单</view>
+      <view class="page-subtitle">查看点餐进度和历史记录</view>
+    </view>
+    <button class="head-btn" bindtap="loadOrders">刷新</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty">
+    <view class="empty-mark">单</view>
+    <text>正在读取订单</text>
+  </view>
+
+  <view wx:elif="{{errorMessage}}" class="empty">
+    <view class="empty-mark">!</view>
+    <text>{{errorMessage}}</text>
+    <button class="primary-btn empty-btn" bindtap="loadOrders">重新加载</button>
+  </view>
+
+  <view wx:elif="{{!orders.length}}" class="empty">
+    <view class="empty-mark">空</view>
+    <text>还没有订单</text>
+    <button class="primary-btn empty-btn" bindtap="goMenu">去点餐</button>
+  </view>
+
+  <view wx:else class="order-list">
+    <view wx:for="{{orders}}" wx:key="id" class="order-card">
+      <view class="order-top">
+        <view>
+          <view class="order-no">{{item.orderNo}}</view>
+          <view class="order-time">{{item.createTimeText}}</view>
+        </view>
+        <view class="status {{item.statusClass}}">{{item.statusText}}</view>
+      </view>
+      <view class="order-items">{{item.itemText}}</view>
+      <view class="order-bottom">
+        <text>{{item.items.length}} 份餐品</text>
+        <text class="price">¥{{item.totalAmountText}}</text>
+      </view>
+    </view>
+  </view>
+</view>

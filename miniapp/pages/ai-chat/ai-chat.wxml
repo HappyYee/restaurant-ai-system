@@ -1,0 +1,68 @@
+<view class="page ai-page safe-bottom">
+  <view class="ai-head">
+    <view class="ai-title">智能点餐</view>
+    <view class="ai-subtitle">说出人数、预算、口味和出餐要求</view>
+  </view>
+
+  <view class="prompt-panel">
+    <textarea
+      class="prompt-input"
+      maxlength="160"
+      placeholder="例如：两个人，60元以内，清淡一点，出餐快"
+      value="{{prompt}}"
+      bindinput="onInput"
+    />
+    <button class="primary-btn" loading="{{generating}}" bindtap="generate">生成推荐</button>
+  </view>
+
+  <scroll-view class="preset-scroll" scroll-x>
+    <view class="preset-row">
+      <button
+        wx:for="{{presets}}"
+        wx:key="*this"
+        class="preset-chip"
+        data-text="{{item}}"
+        bindtap="usePreset"
+      >{{item}}</button>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{loading}}" class="empty">
+    <view class="empty-mark">智</view>
+    <text>正在读取菜单</text>
+  </view>
+
+  <view wx:elif="{{errorMessage}}" class="empty ai-empty">
+    <view class="empty-mark">!</view>
+    <text>{{errorMessage}}</text>
+  </view>
+
+  <view wx:elif="{{!plans.length}}" class="empty ai-empty">
+    <view class="empty-mark">AI</view>
+    <text>等待生成推荐方案</text>
+  </view>
+
+  <view wx:else class="plan-list">
+    <view wx:for="{{plans}}" wx:key="name" class="plan-card">
+      <view class="plan-head">
+        <view>
+          <view class="plan-name">{{item.name}}</view>
+          <view class="plan-reason">{{item.reason}}</view>
+        </view>
+        <view class="plan-total">¥{{item.totalAmountText}}</view>
+      </view>
+
+      <view class="plan-items">
+        <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="id" class="plan-item">
+          <view>
+            <view class="dish-name">{{dish.name}}</view>
+            <view class="dish-meta">{{dish.category}} · {{dish.cookTime}}分钟</view>
+          </view>
+          <text class="dish-price">¥{{dish.subtotalText}}</text>
+        </view>
+      </view>
+
+      <button class="primary-btn plan-btn" data-index="{{index}}" bindtap="addPlan">加入购物车</button>
+    </view>
+  </view>
+</view>
