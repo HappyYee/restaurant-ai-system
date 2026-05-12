@@ -44,7 +44,9 @@ public class DeepSeekClient {
                     "model", model,
                     "messages", messages,
                     "temperature", 0.4,
-                    "stream", false
+                    "stream", false,
+                    "response_format", Map.of("type", "json_object"),
+                    "thinking", Map.of("type", "disabled")
             );
             String endpoint = baseUrl.replaceAll("/+$", "") + "/chat/completions";
             HttpRequest request = HttpRequest.newBuilder()
@@ -70,5 +72,9 @@ public class DeepSeekClient {
         } catch (Exception ex) {
             throw new BusinessException("DeepSeek 调用异常：" + ex.getMessage());
         }
+    }
+
+    public String model() {
+        return model;
     }
 }

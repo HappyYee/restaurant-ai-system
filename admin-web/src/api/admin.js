@@ -38,7 +38,9 @@ async function backendRequest(path, options = {}) {
   if (response.ok && body.code === 200) {
     return body.data
   }
-  throw new Error(body.message || `后端请求失败：${response.status}`)
+  const error = new Error(body.message || `后端请求失败：${response.status}`)
+  error.status = response.status
+  throw error
 }
 
 async function tryBackend(path, options) {
@@ -98,6 +100,8 @@ function getMembers() {
       totalSpent: 426.8,
       memberSince: '2026-04-18 12:20:00',
       nextLevelNeed: 0,
+      pointEarnRule: '实付1元得1.5积分',
+      pointRedeemRule: '100积分抵1元，50积分起用',
     },
     {
       userId: 2,
@@ -107,6 +111,8 @@ function getMembers() {
       totalSpent: 168.5,
       memberSince: '2026-04-29 09:35:00',
       nextLevelNeed: 131.5,
+      pointEarnRule: '实付1元得1.2积分',
+      pointRedeemRule: '100积分抵1元，50积分起用',
     },
     {
       userId: 3,
@@ -116,6 +122,8 @@ function getMembers() {
       totalSpent: 63.2,
       memberSince: '2026-05-02 18:15:00',
       nextLevelNeed: 36.8,
+      pointEarnRule: '实付1元得1积分',
+      pointRedeemRule: '100积分抵1元，50积分起用',
     },
   ])
 }
@@ -787,19 +795,29 @@ export async function fetchAiAnalysis() {
 }
 
 export async function chatBusinessAi({ message, sessionId }) {
-  const backendResult = await tryBackend('/admin/ai/business-chat', {
-    method: 'POST',
-    body: {
-      message,
-      sessionId,
-    },
-  })
-  if (backendResult) {
-    return backendResult
+  let fallbackReason = '后台服务未连接'
+  try {
+    return await backendRequest('/admin/ai/business-chat', {
+      method: 'POST',
+      body: {
+        message,
+        sessionId,
+      },
+    })
+  } catch (error) {
+    fallbackReason =
+      error.status === 401
+        ? '当前后台是离线登录或 token 已失效，请在后端启动后退出并重新登录'
+        : error.message || fallbackReason
+    console.warn('[admin-api] business AI fallback:', fallbackReason)
   }
   const stats = await fetchDashboardStats()
   return {
     sessionId: sessionId || `local-${Date.now()}`,
+    provider: 'frontend-local',
+    model: 'fallback',
+    fallback: true,
+    errorMessage: fallbackReason,
     thinking: ['读取经营看板指标', '结合会员消费、库存和成本结构', '后端 AI 暂不可用，使用本地规则生成'],
     answer: `当前今日营业额 ${stats.revenueToday.toFixed(2)} 元，今日订单 ${stats.orderToday} 单，净利约 ${stats.netProfitToday.toFixed(2)} 元。针对“${message}”，建议优先看热销菜品组合、会员复购转化和库存风险三件事。`,
     actions: ['把热销主食与饮品设置成会员套餐', '对低库存菜品设置小程序临时隐藏或预警', '追问具体月份、成本项或会员等级获得更细分析'],

@@ -13,7 +13,11 @@ public class OrderVO {
     private Long id;
     private String orderNo;
     private Long userId;
+    private BigDecimal originalAmount;
     private BigDecimal totalAmount;
+    private Integer pointsUsed;
+    private BigDecimal pointsDiscount;
+    private Integer pointsEarned;
     private Integer status;
     private String remark;
     private Integer source;
@@ -25,7 +29,11 @@ public class OrderVO {
         vo.setId(order.getId());
         vo.setOrderNo(order.getOrderNo());
         vo.setUserId(order.getUserId());
+        vo.setOriginalAmount(order.getOriginalAmount());
         vo.setTotalAmount(order.getTotalAmount());
+        vo.setPointsUsed(order.getPointsUsed());
+        vo.setPointsDiscount(order.getPointsDiscount());
+        vo.setPointsEarned(order.getPointsEarned());
         vo.setStatus(order.getStatus());
         vo.setRemark(order.getRemark());
         vo.setSource(order.getSource());

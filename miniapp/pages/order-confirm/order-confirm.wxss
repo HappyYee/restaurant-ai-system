@@ -177,6 +177,64 @@
   font-weight: 900;
 }
 
+.points-box {
+  margin: 16rpx 0;
+  padding: 18rpx;
+  border-radius: 16rpx;
+  background: #f8fafc;
+}
+
+.points-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.points-title {
+  color: #111827;
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.points-subtitle,
+.points-note {
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 22rpx;
+  line-height: 1.45;
+}
+
+.points-discount {
+  flex-shrink: 0;
+  color: #f97316;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.points-options {
+  margin-top: 16rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.point-chip {
+  min-height: 58rpx;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #374151;
+  font-size: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.point-chip.active {
+  background: #0f766e;
+  color: #ffffff;
+}
+
 .submit-bar {
   position: fixed;
   left: 24rpx;

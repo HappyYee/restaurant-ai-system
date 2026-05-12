@@ -27,6 +27,10 @@ public class DataInitializer {
             ensureColumn("user", "points", "INT NOT NULL DEFAULT 0 COMMENT '会员积分'");
             ensureColumn("user", "total_spent", "DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '累计消费'");
             ensureColumn("user", "member_since", "DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '入会时间'");
+            ensureColumn("orders", "original_amount", "DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '会员价餐品原始合计'");
+            ensureColumn("orders", "points_used", "INT NOT NULL DEFAULT 0 COMMENT '本单使用积分'");
+            ensureColumn("orders", "points_discount", "DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '积分抵扣金额'");
+            ensureColumn("orders", "points_earned", "INT NOT NULL DEFAULT 0 COMMENT '本单获得积分'");
         };
     }
 

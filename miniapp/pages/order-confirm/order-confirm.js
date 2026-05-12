@@ -1,4 +1,4 @@
-const { login } = require('../../utils/auth');
+const { getCurrentUser, login } = require('../../utils/auth');
 const { request } = require('../../utils/request');
 const cartStore = require('../../utils/cart');
 
@@ -9,12 +9,18 @@ Page({
       totalQuantity: 0,
       totalAmountText: '0.00'
     },
+    memberProfile: {},
+    pointOptions: [],
+    selectedPoints: 0,
+    pointsDiscountText: '0.00',
+    payableText: '0.00',
     remark: '',
     submitting: false
   },
 
   onShow() {
     this.loadCart();
+    this.loadMemberProfile();
   },
 
   loadCart() {
@@ -27,7 +33,75 @@ Page({
     this.setData({
       items,
       summary: cartStore.getCartSummary(items)
+    }, () => this.refreshPointPreview());
+  },
+
+  loadMemberProfile() {
+    if (!getCurrentUser()) {
+      this.setData({
+        memberProfile: {},
+        pointOptions: [],
+        selectedPoints: 0
+      }, () => this.refreshPointPreview());
+      return;
+    }
+    request({
+      url: '/member/profile'
+    })
+      .then((profile) => {
+        this.setData({
+          memberProfile: profile || {}
+        }, () => this.refreshPointPreview());
+      })
+      .catch(() => {
+        this.setData({
+          memberProfile: {},
+          pointOptions: [],
+          selectedPoints: 0
+        }, () => this.refreshPointPreview());
+      });
+  },
+
+  refreshPointPreview() {
+    const totalAmount = Number(this.data.summary.totalAmount || 0);
+    const profile = this.data.memberProfile || {};
+    const pointOptions = this.buildPointOptions(totalAmount, profile);
+    const maxPoints = pointOptions.length ? pointOptions[pointOptions.length - 1].points : 0;
+    const selectedPoints = Math.min(Number(this.data.selectedPoints || 0), maxPoints);
+    const discount = selectedPoints / 100;
+    const payable = Math.max(0, totalAmount - discount);
+    this.setData({
+      pointOptions,
+      selectedPoints,
+      pointsDiscountText: cartStore.toMoney(discount),
+      payableText: cartStore.toMoney(payable)
     });
+  },
+
+  buildPointOptions(totalAmount, profile) {
+    const availablePoints = Math.floor(Number(profile.points || 0) / 50) * 50;
+    if (!availablePoints || !totalAmount) {
+      return [];
+    }
+    const level = profile.memberLevel || '普通会员';
+    const levelCap = level === '金卡会员' ? 1500 : level === '银卡会员' ? 1000 : 500;
+    const orderCap = Math.floor((totalAmount * 0.1) / 0.5) * 50;
+    const maxPoints = Math.min(availablePoints, levelCap, orderCap);
+    const candidates = [50, 100, 300, 500, 1000, 1500].filter((points) => points <= maxPoints);
+    if (maxPoints >= 50 && !candidates.includes(maxPoints)) {
+      candidates.push(maxPoints);
+    }
+    return candidates.map((points) => ({
+      points,
+      discountText: cartStore.toMoney(points / 100)
+    }));
+  },
+
+  selectPoints(event) {
+    const points = Number(event.currentTarget.dataset.points || 0);
+    this.setData({
+      selectedPoints: points
+    }, () => this.refreshPointPreview());
   },
 
   increase(event) {
@@ -76,7 +150,8 @@ Page({
               quantity: item.quantity
             })),
             remark: this.data.remark,
-            source: wx.getStorageSync('orderSource') || 0
+            source: wx.getStorageSync('orderSource') || 0,
+            redeemPoints: this.data.selectedPoints
           }
         })
       )
@@ -84,7 +159,7 @@ Page({
         cartStore.clearCart();
         wx.removeStorageSync('orderSource');
         wx.redirectTo({
-          url: `/pages/order-success/order-success?orderNo=${order.orderNo}&amount=${order.totalAmount}`
+          url: `/pages/order-success/order-success?orderNo=${order.orderNo}&amount=${order.totalAmount}&pointsUsed=${order.pointsUsed || 0}&pointsEarned=${order.pointsEarned || 0}&pointsDiscount=${order.pointsDiscount || 0}`
         });
       })
       .catch(() => {})

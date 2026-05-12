@@ -14,6 +14,7 @@
       <view>
         <view class="member-title">{{memberProfile.memberLevel || '普通会员'}}</view>
         <view class="member-subtitle">饮品 85 折 · 其他餐品 9 折</view>
+        <view class="member-subtitle">{{memberProfile.pointEarnRule || '实付1元得1积分'}}</view>
       </view>
       <view class="member-points">{{memberProfile.points || 0}} 积分</view>
     </view>

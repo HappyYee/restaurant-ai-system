@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ChatDotRound, MagicStick, Position, Refresh } from '@element-plus/icons-vue'
 import { chatBusinessAi, fetchDashboardStats } from '../api/admin'
 
@@ -15,6 +15,24 @@ const quickQuestions = [
   '哪些菜品适合做会员套餐？',
   '怎么降低人力成本但不影响出餐？',
 ]
+
+const latestAiStatus = computed(() => {
+  const lastAssistant = messages.value.filter((message) => message.role === 'assistant').at(-1)
+  if (!lastAssistant) {
+    return {
+      label: '等待连接',
+      type: 'info',
+      detail: '发送问题后显示真实模型状态',
+    }
+  }
+  return {
+    label: lastAssistant.fallback ? '本地兜底' : 'DeepSeek 已连接',
+    type: lastAssistant.fallback ? 'warning' : 'success',
+    detail: lastAssistant.fallback
+      ? lastAssistant.errorMessage || '后端未命中 DeepSeek'
+      : `${lastAssistant.provider || 'DeepSeek'} · ${lastAssistant.model || '模型已响应'}`,
+  }
+})
 
 async function loadStats() {
   statsLoading.value = true
@@ -47,6 +65,10 @@ async function sendQuestion(text = input.value) {
       content: response.answer,
       thinking: response.thinking || [],
       actions: response.actions || [],
+      provider: response.provider,
+      model: response.model,
+      fallback: response.fallback,
+      errorMessage: response.errorMessage,
     })
   } finally {
     loading.value = false
@@ -76,9 +98,9 @@ onMounted(() => {
         <p>助手会读取营业额、订单、库存、会员和成本数据，返回可展示的分析依据与行动建议。</p>
       </div>
       <div class="ai-status">
-        <span>当前模型</span>
-        <strong>DeepSeek V4</strong>
-        <small>后端未启动或 Key 未配置时自动使用本地规则兜底</small>
+        <span>当前连接</span>
+        <strong>{{ latestAiStatus.label }}</strong>
+        <el-tag :type="latestAiStatus.type">{{ latestAiStatus.detail }}</el-tag>
       </div>
     </section>
 
@@ -103,9 +125,15 @@ onMounted(() => {
             <div class="bubble">
               <div v-if="message.role === 'assistant'" class="thinking">
                 <el-icon><ChatDotRound /></el-icon>
+                <span :class="message.fallback ? 'warn' : 'ok'">
+                  {{ message.fallback ? '本地兜底' : `${message.provider || 'DeepSeek'} 响应` }}
+                </span>
                 <span v-for="item in message.thinking" :key="item">{{ item }}</span>
               </div>
               <p>{{ message.content }}</p>
+              <div v-if="message.fallback && message.errorMessage" class="fallback-note">
+                {{ message.errorMessage }}
+              </div>
               <ul v-if="message.actions?.length" class="action-list">
                 <li v-for="item in message.actions" :key="item">{{ item }}</li>
               </ul>
@@ -295,6 +323,16 @@ onMounted(() => {
   background: #eef6f2;
 }
 
+.thinking span.warn {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.thinking span.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
 .thinking.active span {
   background: #fff7ed;
 }
@@ -304,6 +342,15 @@ onMounted(() => {
   padding-left: 18px;
   color: #344054;
   line-height: 1.7;
+}
+
+.fallback-note {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 12px;
 }
 
 .chat-input {

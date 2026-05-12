@@ -54,20 +54,44 @@
         <text>会员优惠</text>
         <text>已按会员价结算</text>
       </view>
+      <view class="points-box">
+        <view class="points-head">
+          <view>
+            <view class="points-title">积分抵扣</view>
+            <view class="points-subtitle">{{memberProfile.points ? memberProfile.points + ' 积分可用 · ' + (memberProfile.pointRedeemRule || '100积分抵1元') : '登录会员后可使用积分'}}</view>
+          </view>
+          <text class="points-discount">-¥{{pointsDiscountText}}</text>
+        </view>
+        <view wx:if="{{pointOptions.length}}" class="points-options">
+          <button class="point-chip {{selectedPoints == 0 ? 'active' : ''}}" data-points="0" bindtap="selectPoints">不用</button>
+          <button
+            wx:for="{{pointOptions}}"
+            wx:key="points"
+            class="point-chip {{selectedPoints == item.points ? 'active' : ''}}"
+            data-points="{{item.points}}"
+            bindtap="selectPoints"
+          >{{item.points}}分抵¥{{item.discountText}}</button>
+        </view>
+        <view class="points-note">实际抵扣由后端按等级上限、订单10%和毛利保护再次校验。</view>
+      </view>
       <view class="summary-row">
         <text>餐品数量</text>
         <text>{{summary.totalQuantity}} 件</text>
       </view>
+      <view class="summary-row">
+        <text>积分抵扣</text>
+        <text>-¥{{pointsDiscountText}}</text>
+      </view>
       <view class="summary-row total">
         <text>应付合计</text>
-        <text>¥{{summary.totalAmountText}}</text>
+        <text>¥{{payableText}}</text>
       </view>
     </view>
 
     <view class="submit-bar">
       <view>
         <view class="submit-label">合计</view>
-        <view class="submit-price">¥{{summary.totalAmountText}}</view>
+        <view class="submit-price">¥{{payableText}}</view>
       </view>
       <button class="primary-btn submit-btn" loading="{{submitting}}" bindtap="submitOrder">提交订单</button>
     </view>

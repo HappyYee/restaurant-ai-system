@@ -15,6 +15,8 @@ public class MemberProfileVO {
     private BigDecimal totalSpent;
     private LocalDateTime memberSince;
     private BigDecimal nextLevelNeed;
+    private String pointEarnRule;
+    private String pointRedeemRule;
 
     public static MemberProfileVO from(User user) {
         MemberProfileVO vo = new MemberProfileVO();
@@ -25,6 +27,8 @@ public class MemberProfileVO {
         vo.setTotalSpent(user.getTotalSpent() == null ? BigDecimal.ZERO : user.getTotalSpent());
         vo.setMemberSince(user.getMemberSince());
         vo.setNextLevelNeed(nextLevelNeed(vo.getTotalSpent()));
+        vo.setPointEarnRule(earnRule(vo.getMemberLevel()));
+        vo.setPointRedeemRule("100积分抵1元，50积分起用；单笔受等级上限、订单10%和毛利保护限制");
         return vo;
     }
 
@@ -37,5 +41,15 @@ public class MemberProfileVO {
             return new BigDecimal("300").subtract(spent);
         }
         return new BigDecimal("100").subtract(spent);
+    }
+
+    private static String earnRule(String memberLevel) {
+        if ("金卡会员".equals(memberLevel)) {
+            return "实付1元得1.5积分";
+        }
+        if ("银卡会员".equals(memberLevel)) {
+            return "实付1元得1.2积分";
+        }
+        return "实付1元得1积分";
     }
 }

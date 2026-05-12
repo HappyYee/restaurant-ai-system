@@ -15,7 +15,11 @@ public class Orders {
     private Long id;
     private String orderNo;
     private Long userId;
+    private BigDecimal originalAmount;
     private BigDecimal totalAmount;
+    private Integer pointsUsed;
+    private BigDecimal pointsDiscount;
+    private Integer pointsEarned;
     private Integer status;
     private String remark;
     private Integer source;

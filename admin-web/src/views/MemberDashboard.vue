@@ -160,6 +160,7 @@ onMounted(loadData)
           <template #default="{ row }">¥{{ money(row.totalSpent) }}</template>
         </el-table-column>
         <el-table-column prop="points" label="积分" width="100" />
+        <el-table-column prop="pointEarnRule" label="返积分规则" min-width="150" />
         <el-table-column label="距下级目标" width="150">
           <template #default="{ row }">
             <span>{{ Number(row.nextLevelNeed || 0) === 0 ? '已达最高等级' : `还差 ¥${money(row.nextLevelNeed)}` }}</span>

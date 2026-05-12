@@ -68,8 +68,11 @@ public class AiServiceImpl implements AiService {
                     Map.of("role", "user", "content", buildBusinessUserPrompt(request.getMessage()))
             ));
             response = parseBusinessResponse(sessionId, content);
+            response.setProvider("DeepSeek");
+            response.setModel(deepSeekClient.model());
+            response.setFallback(false);
         } catch (Exception ex) {
-            response = fallbackBusinessResponse(sessionId, request.getMessage());
+            response = fallbackBusinessResponse(sessionId, request.getMessage(), ex.getMessage());
         }
 
         log(sessionId, null, "assistant", response.getAnswer(), BUSINESS_SCENE);
@@ -91,10 +94,14 @@ public class AiServiceImpl implements AiService {
             ));
             response = parseOrderResponse(sessionId, content, products);
             if (response.getPlans().isEmpty()) {
-                response = fallbackOrderResponse(sessionId, user, products, request.getMessage());
+                response = fallbackOrderResponse(sessionId, user, products, request.getMessage(), "DeepSeek 返回的推荐为空");
+            } else {
+                response.setProvider("DeepSeek");
+                response.setModel(deepSeekClient.model());
+                response.setFallback(false);
             }
         } catch (Exception ex) {
-            response = fallbackOrderResponse(sessionId, user, products, request.getMessage());
+            response = fallbackOrderResponse(sessionId, user, products, request.getMessage(), ex.getMessage());
         }
 
         log(sessionId, userId, "assistant", safeWrite(response), ORDER_SCENE);
@@ -232,9 +239,14 @@ public class AiServiceImpl implements AiService {
         }
     }
 
-    private AiOrderRecommendationVO fallbackOrderResponse(String sessionId, User user, List<Product> products, String message) {
+    private AiOrderRecommendationVO fallbackOrderResponse(String sessionId, User user, List<Product> products,
+                                                          String message, String reason) {
         AiOrderRecommendationVO response = new AiOrderRecommendationVO();
         response.setSessionId(sessionId);
+        response.setProvider("local-rule");
+        response.setModel("fallback");
+        response.setFallback(true);
+        response.setErrorMessage(reason);
         MemberProfileVO profile = user == null ? null : MemberProfileVO.from(user);
         response.setThinking(new ArrayList<>(List.of(
                 "已读取当前菜单、库存和会员价",
@@ -252,11 +264,15 @@ public class AiServiceImpl implements AiService {
         return response;
     }
 
-    private AiChatResponseVO fallbackBusinessResponse(String sessionId, String question) {
+    private AiChatResponseVO fallbackBusinessResponse(String sessionId, String question, String reason) {
         Map<String, Object> dashboard = businessStatsService.dashboard();
         Map<String, Object> memberStats = memberService.getMemberStats();
         AiChatResponseVO response = new AiChatResponseVO();
         response.setSessionId(sessionId);
+        response.setProvider("local-rule");
+        response.setModel("fallback");
+        response.setFallback(true);
+        response.setErrorMessage(reason);
         response.setThinking(List.of("已读取经营看板核心指标", "已读取会员规模、消费和等级分布", "DeepSeek 暂不可用时启用本地经营规则"));
         response.setAnswer("当前门店今日营业额约 " + dashboard.getOrDefault("todayRevenue", 0)
                 + " 元，今日订单 " + dashboard.getOrDefault("todayOrderCount", 0)

@@ -15,6 +15,8 @@ public class OrderCreateRequest {
     private List<Item> items;
     private String remark;
     private Integer source = 0;
+    @Min(0)
+    private Integer redeemPoints = 0;
 
     @Data
     public static class Item {

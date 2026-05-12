@@ -30,6 +30,9 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements OrderService {
+    private static final BigDecimal POINT_VALUE = new BigDecimal("0.01");
+    private static final int POINT_STEP = 50;
+
     private final ProductMapper productMapper;
     private final OrderItemMapper orderItemMapper;
     private final UserMapper userMapper;
@@ -37,8 +40,13 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public OrderVO createOrder(Long userId, OrderCreateRequest request) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(401, "请先登录");
+        }
         List<OrderItem> orderItems = new ArrayList<>();
-        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal originalAmount = BigDecimal.ZERO;
+        BigDecimal estimatedCost = BigDecimal.ZERO;
 
         for (OrderCreateRequest.Item itemRequest : request.getItems()) {
             Product product = productMapper.selectById(itemRequest.getProductId());
@@ -61,16 +69,25 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
             orderItem.setUnitPrice(unitPrice);
             orderItem.setSubtotal(subtotal);
             orderItems.add(orderItem);
-            totalAmount = totalAmount.add(subtotal);
+            originalAmount = originalAmount.add(subtotal);
+            estimatedCost = estimatedCost.add(estimateProductCost(product).multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
 
             product.setStock(product.getStock() - itemRequest.getQuantity());
             productMapper.updateById(product);
         }
 
+        PointsRedemption redemption = calculateRedemption(user, request.getRedeemPoints(), originalAmount, estimatedCost);
+        BigDecimal totalAmount = originalAmount.subtract(redemption.discount()).setScale(2, RoundingMode.HALF_UP);
+        int pointsEarned = calculateEarnedPoints(user.getMemberLevel(), totalAmount);
+
         Orders order = new Orders();
         order.setOrderNo(generateOrderNo());
         order.setUserId(userId);
+        order.setOriginalAmount(originalAmount.setScale(2, RoundingMode.HALF_UP));
         order.setTotalAmount(totalAmount);
+        order.setPointsUsed(redemption.pointsUsed());
+        order.setPointsDiscount(redemption.discount());
+        order.setPointsEarned(pointsEarned);
         order.setStatus(0);
         order.setRemark(request.getRemark());
         order.setSource(request.getSource() == null ? 0 : request.getSource());
@@ -81,7 +98,7 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
             orderItemMapper.insert(orderItem);
         }
 
-        refreshMemberAfterPaidOrder(userId, totalAmount);
+        refreshMemberAfterPaidOrder(user, totalAmount, redemption.pointsUsed(), pointsEarned);
 
         return OrderVO.from(order, orderItems);
     }
@@ -134,16 +151,12 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
         return "RO" + time + suffix;
     }
 
-    private void refreshMemberAfterPaidOrder(Long userId, BigDecimal totalAmount) {
-        User user = userMapper.selectById(userId);
-        if (user == null) {
-            return;
-        }
+    private void refreshMemberAfterPaidOrder(User user, BigDecimal totalAmount, int pointsUsed, int pointsEarned) {
         BigDecimal currentSpent = user.getTotalSpent() == null ? BigDecimal.ZERO : user.getTotalSpent();
         BigDecimal nextSpent = currentSpent.add(totalAmount).setScale(2, RoundingMode.HALF_UP);
         int currentPoints = user.getPoints() == null ? 0 : user.getPoints();
         user.setTotalSpent(nextSpent);
-        user.setPoints(currentPoints + totalAmount.setScale(0, RoundingMode.DOWN).intValue());
+        user.setPoints(Math.max(0, currentPoints - pointsUsed) + pointsEarned);
         user.setMemberLevel(resolveMemberLevel(nextSpent));
         if (user.getMemberSince() == null) {
             user.setMemberSince(LocalDateTime.now());
@@ -159,5 +172,73 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
             return "银卡会员";
         }
         return "普通会员";
+    }
+
+    private PointsRedemption calculateRedemption(User user, Integer requestedPoints,
+                                                 BigDecimal originalAmount, BigDecimal estimatedCost) {
+        int requested = requestedPoints == null ? 0 : Math.max(0, requestedPoints);
+        if (requested == 0 || originalAmount.signum() <= 0) {
+            return new PointsRedemption(0, BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        }
+
+        int availablePoints = user.getPoints() == null ? 0 : Math.max(0, user.getPoints());
+        int normalizedRequested = floorToStep(Math.min(requested, availablePoints));
+        if (normalizedRequested <= 0) {
+            return new PointsRedemption(0, BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        }
+
+        BigDecimal levelCap = BigDecimal.valueOf(levelRedeemCapPoints(user.getMemberLevel())).multiply(POINT_VALUE);
+        BigDecimal orderCap = originalAmount.multiply(new BigDecimal("0.10"));
+        BigDecimal profitCap = originalAmount.subtract(estimatedCost.multiply(new BigDecimal("1.20")));
+        if (profitCap.signum() < 0) {
+            profitCap = BigDecimal.ZERO;
+        }
+        BigDecimal maxDiscount = min(levelCap, orderCap, profitCap).setScale(2, RoundingMode.DOWN);
+        int maxPoints = floorToStep(maxDiscount.divide(POINT_VALUE, 0, RoundingMode.DOWN).intValue());
+        int pointsUsed = Math.min(normalizedRequested, maxPoints);
+        BigDecimal discount = BigDecimal.valueOf(pointsUsed).multiply(POINT_VALUE).setScale(2, RoundingMode.HALF_UP);
+        return new PointsRedemption(pointsUsed, discount);
+    }
+
+    private int calculateEarnedPoints(String memberLevel, BigDecimal paidAmount) {
+        BigDecimal multiplier;
+        if ("金卡会员".equals(memberLevel)) {
+            multiplier = new BigDecimal("1.50");
+        } else if ("银卡会员".equals(memberLevel)) {
+            multiplier = new BigDecimal("1.20");
+        } else {
+            multiplier = BigDecimal.ONE;
+        }
+        return paidAmount.multiply(multiplier).setScale(0, RoundingMode.DOWN).intValue();
+    }
+
+    private int levelRedeemCapPoints(String memberLevel) {
+        if ("金卡会员".equals(memberLevel)) {
+            return 1500;
+        }
+        if ("银卡会员".equals(memberLevel)) {
+            return 1000;
+        }
+        return 500;
+    }
+
+    private int floorToStep(int points) {
+        return points / POINT_STEP * POINT_STEP;
+    }
+
+    private BigDecimal estimateProductCost(Product product) {
+        BigDecimal cost = product.getCostPrice();
+        if (cost == null || cost.signum() <= 0) {
+            BigDecimal price = product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
+            return price.multiply(new BigDecimal("0.45")).setScale(2, RoundingMode.HALF_UP);
+        }
+        return cost;
+    }
+
+    private BigDecimal min(BigDecimal first, BigDecimal second, BigDecimal third) {
+        return first.min(second).min(third);
+    }
+
+    private record PointsRedemption(int pointsUsed, BigDecimal discount) {
     }
 }
