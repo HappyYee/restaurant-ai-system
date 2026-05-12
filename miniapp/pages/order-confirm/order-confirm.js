@@ -87,9 +87,9 @@ Page({
     const levelCap = level === '金卡会员' ? 1500 : level === '银卡会员' ? 1000 : 500;
     const orderCap = Math.floor((totalAmount * 0.1) / 0.5) * 50;
     const maxPoints = Math.min(availablePoints, levelCap, orderCap);
-    const candidates = [50, 100, 300, 500, 1000, 1500].filter((points) => points <= maxPoints);
-    if (maxPoints >= 50 && !candidates.includes(maxPoints)) {
-      candidates.push(maxPoints);
+    const candidates = [];
+    for (let points = 50; points <= maxPoints; points += 50) {
+      candidates.push(points);
     }
     return candidates.map((points) => ({
       points,
@@ -162,7 +162,13 @@ Page({
           url: `/pages/order-success/order-success?orderNo=${order.orderNo}&amount=${order.totalAmount}&pointsUsed=${order.pointsUsed || 0}&pointsEarned=${order.pointsEarned || 0}&pointsDiscount=${order.pointsDiscount || 0}`
         });
       })
-      .catch(() => {})
+      .catch((error) => {
+        console.error('submit order failed:', error);
+        wx.showToast({
+          title: error.message || '订单提交失败',
+          icon: 'none'
+        });
+      })
       .then(() => {
         this.setData({
           submitting: false

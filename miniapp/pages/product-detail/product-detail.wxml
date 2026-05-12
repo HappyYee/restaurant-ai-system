@@ -45,7 +45,7 @@
       <view class="quantity-row">
         <text>购买数量</text>
         <view class="stepper">
-          <button class="qty-btn" bindtap="decrease">−</button>
+          <button class="qty-btn" disabled="{{quantity <= 0}}" bindtap="decrease">−</button>
           <text class="qty-text">{{quantity}}</text>
           <button class="qty-btn add" bindtap="increase">+</button>
         </view>
@@ -53,7 +53,7 @@
     </view>
 
     <view class="bottom-actions">
-      <button class="ghost-btn" bindtap="addToCart">加入购物车</button>
+      <button class="ghost-btn" bindtap="addToCart">{{quantity ? '加入购物车' : '移除购物车'}}</button>
       <button class="primary-btn" bindtap="goConfirm">立即下单</button>
     </view>
   </view>

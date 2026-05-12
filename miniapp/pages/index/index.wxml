@@ -1,4 +1,4 @@
-<view class="page index-page safe-bottom">
+<view class="page index-page safe-bottom {{cartSummary.totalQuantity ? 'has-cart' : ''}}">
   <view class="hero">
     <view>
       <view class="hero-label">今日营业中</view>
@@ -68,7 +68,7 @@
     </scroll-view>
   </view>
 
-  <view class="cart-bar {{cartSummary.totalQuantity ? 'active' : ''}}">
+  <view wx:if="{{cartSummary.totalQuantity}}" class="cart-bar active">
     <view>
       <view class="cart-title">已选 {{cartSummary.totalQuantity}} 件</view>
       <view class="cart-price">¥{{cartSummary.totalAmountText}}</view>

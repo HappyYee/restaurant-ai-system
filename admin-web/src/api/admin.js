@@ -15,17 +15,38 @@ const ANNUAL_FINANCE_KEY = 'restaurant_mock_annual_finance'
 const FINANCE_RECORD_KEY = 'restaurant_mock_finance_records_v2'
 const MEMBER_KEY = 'restaurant_mock_members_v1'
 const TOKEN_KEY = 'restaurant_admin_token'
+const USER_KEY = 'restaurant_admin_user'
+const TOKEN_EXPIRES_AT_KEY = 'restaurant_admin_token_expires_at'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080/api'
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const sleep = (ms = 180) => new Promise((resolve) => setTimeout(resolve, ms))
+
+function clearAdminSession() {
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(USER_KEY)
+  localStorage.removeItem(TOKEN_EXPIRES_AT_KEY)
+}
+
+function getAdminToken() {
+  const token = localStorage.getItem(TOKEN_KEY)
+  const expiresAt = Number(localStorage.getItem(TOKEN_EXPIRES_AT_KEY) || 0)
+  if (!token) {
+    return ''
+  }
+  if (!expiresAt || Date.now() > expiresAt) {
+    clearAdminSession()
+    return ''
+  }
+  return token
+}
 
 async function backendRequest(path, options = {}) {
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
   }
-  const token = localStorage.getItem(TOKEN_KEY)
+  const token = getAdminToken()
   if (token) {
     headers.Authorization = `Bearer ${token}`
   }
@@ -37,6 +58,9 @@ async function backendRequest(path, options = {}) {
   const body = await response.json().catch(() => ({}))
   if (response.ok && body.code === 200) {
     return body.data
+  }
+  if (response.status === 401 || response.status === 403 || body.code === 401 || body.code === 403) {
+    clearAdminSession()
   }
   const error = new Error(body.message || `后端请求失败：${response.status}`)
   error.status = response.status

@@ -5,6 +5,7 @@ const cartStore = require('../../utils/cart');
 Page({
   data: {
     userInfo: null,
+    avatarText: 'HI',
     memberProfile: {},
     memberProgress: 0,
     cartSummary: {
@@ -21,6 +22,7 @@ Page({
     const userInfo = getCurrentUser();
     this.setData({
       userInfo,
+      avatarText: this.resolveAvatarText(userInfo),
       cartSummary: cartStore.getCartSummary()
     });
     if (userInfo) {
@@ -40,27 +42,60 @@ Page({
       .then((profile) => {
         const totalSpent = Number(profile.totalSpent || 0);
         const nextNeed = Number(profile.nextLevelNeed || 0);
-        const target = nextNeed === 0 ? totalSpent : totalSpent + nextNeed;
         this.setData({
           memberProfile: {
             ...profile,
             totalSpentText: cartStore.toMoney(profile.totalSpent),
             nextLevelNeedText: cartStore.toMoney(profile.nextLevelNeed)
           },
-          memberProgress: target ? Math.min(100, Math.round((totalSpent / target) * 100)) : 100
+          memberProgress: this.calcMemberProgress(totalSpent, nextNeed)
         });
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error('load member profile failed:', error);
+        this.setData({
+          memberProfile: {},
+          memberProgress: 0
+        });
+      });
+  },
+
+  resolveAvatarText(userInfo) {
+    if (!userInfo) {
+      return 'HI';
+    }
+    const nickname = String(userInfo.nickname || '').trim();
+    return nickname ? nickname.slice(0, 1) : '会';
+  },
+
+  calcMemberProgress(totalSpent, nextNeed) {
+    const spent = Math.max(0, Number(totalSpent || 0));
+    const need = Math.max(0, Number(nextNeed || 0));
+    if (need === 0) {
+      return spent > 0 ? 100 : 0;
+    }
+    const target = spent + need;
+    if (!target || !Number.isFinite(target)) {
+      return 0;
+    }
+    return Math.max(0, Math.min(100, Math.round((spent / target) * 100)));
   },
 
   login() {
-    login(true).then(() => {
-      wx.showToast({
-        title: '登录成功',
-        icon: 'success'
+    login(true)
+      .then(() => {
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success'
+        });
+        this.refresh();
+      })
+      .catch((error) => {
+        wx.showToast({
+          title: error.message || '登录失败',
+          icon: 'none'
+        });
       });
-      this.refresh();
-    });
   },
 
   logout() {

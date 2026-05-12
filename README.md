@@ -42,6 +42,7 @@ cd backend
 export MYSQL_USERNAME=root
 export MYSQL_PASSWORD="你的 MySQL 密码"
 export DEEPSEEK_API_KEY="你的 DeepSeek API Key"
+export DEEPSEEK_MODEL="deepseek-v4-pro"
 ./mvnw spring-boot:run
 ```
 
@@ -67,14 +68,14 @@ http://127.0.0.1:5173
 
 ## 微信小程序
 
-使用微信开发者工具导入 `miniapp` 目录。真机调试时，需要把 `miniapp/utils/config.js` 中的 `baseUrl` 改为 Mac 当前局域网 IP，例如：
+使用微信开发者工具导入 `miniapp` 目录。小程序默认开发环境请求 `http://127.0.0.1:8080/api`；真机调试时不要改源码，可以在开发者工具 Storage 中写入：
 
 ```js
-baseUrl: 'http://192.168.1.3:8080/api'
+restaurant_api_base_url = 'http://你的Mac局域网IP:8080/api'
 ```
 
-本地开发阶段可在微信开发者工具中关闭“校验合法域名”。
+本地开发阶段可在微信开发者工具中关闭“校验合法域名”；正式版需要配置 HTTPS 业务域名。
 
 ## 说明
 
-DeepSeek 默认模型通过 `DEEPSEEK_MODEL` 配置，未配置时使用 `deepseek-v4-flash`。真实 API Key 不应提交到仓库，应通过环境变量配置；如果未配置 Key，系统会使用本地规则兜底，保证演示流程可继续。
+DeepSeek 默认模型通过 `DEEPSEEK_MODEL` 配置，未配置时使用 `deepseek-v4-pro`。真实 API Key 不应提交到仓库，应通过环境变量配置；如果未配置 Key，系统会使用本地规则兜底，保证演示流程可继续。

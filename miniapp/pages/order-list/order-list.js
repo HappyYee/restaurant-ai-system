@@ -34,9 +34,10 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadOrders().then(() => {
-      wx.stopPullDownRefresh();
-    });
+    this.loadOrders().then(
+      () => wx.stopPullDownRefresh(),
+      () => wx.stopPullDownRefresh()
+    );
   },
 
   loadOrders() {

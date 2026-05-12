@@ -1,11 +1,8 @@
 const { request } = require('./request');
-
-function getCurrentUser() {
-  return wx.getStorageSync('userInfo') || null;
-}
+const { clearSession, getCurrentUser, getToken, setSession } = require('./session');
 
 function login(force = false) {
-  const token = wx.getStorageSync('token');
+  const token = getToken();
   const userInfo = getCurrentUser();
 
   if (token && userInfo && !force) {
@@ -33,8 +30,7 @@ function login(force = false) {
               userId: data.userId,
               nickname: data.nickname || '微信用户'
             };
-            wx.setStorageSync('token', data.token);
-            wx.setStorageSync('userInfo', nextUser);
+            setSession(data, nextUser);
             resolve(nextUser);
           })
           .catch(reject);
@@ -45,8 +41,7 @@ function login(force = false) {
 }
 
 function logout() {
-  wx.removeStorageSync('token');
-  wx.removeStorageSync('userInfo');
+  clearSession();
 }
 
 module.exports = {

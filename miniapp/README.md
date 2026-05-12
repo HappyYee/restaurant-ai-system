@@ -20,13 +20,23 @@
 
 ## 后端接口
 
-默认请求地址在 `utils/config.js`，当前配置为真机联调使用的 Mac 局域网地址：
+默认请求地址在 `utils/config.js`，不再把某一台电脑的局域网 IP 写死到代码里。小程序会按环境选择地址：
 
 ```js
-baseUrl: 'http://192.168.1.3:8080/api'
+develop: 'http://127.0.0.1:8080/api'
+trial: 'https://your-domain.example.com/api'
+release: 'https://your-domain.example.com/api'
 ```
 
-本地联调前需要先启动 Spring Boot 后端，并导入 `database/schema.sql` 和 `database/init_data.sql`。如果 Mac 的 Wi-Fi IP 变化，需要同步修改 `utils/config.js`。
+真机联调如果需要访问 Mac 的局域网地址，可以在微信开发者工具 Storage 中写入：
+
+```js
+restaurant_api_base_url = 'http://你的Mac局域网IP:8080/api'
+```
+
+这样不会把开发机 IP 打进代码包。正式版需要把 `release` 改成已备案并配置到微信后台的 HTTPS 域名。
+
+本地联调前需要先启动 Spring Boot 后端，并导入 `database/schema.sql` 和 `database/init_data.sql`。
 
 后端启动示例：
 
@@ -35,13 +45,14 @@ cd /Users/a1/AI_Studio/Code/homework/backend
 export MYSQL_USERNAME=root
 export MYSQL_PASSWORD="你的 MySQL 密码"
 export DEEPSEEK_API_KEY="你的 DeepSeek API Key"
+export DEEPSEEK_MODEL="deepseek-v4-pro"
 ./mvnw spring-boot:run
 ```
 
 启动后可以先在浏览器或终端确认：
 
 ```bash
-curl http://192.168.1.3:8080/api/products
+curl http://127.0.0.1:8080/api/products
 ```
 
 只要这个接口能返回菜品 JSON，真机小程序首页就能显示后端数据。

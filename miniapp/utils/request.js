@@ -1,7 +1,8 @@
 const config = require('./config');
+const { clearSession, getToken } = require('./session');
 
 function request(options = {}) {
-  const token = wx.getStorageSync('token');
+  const token = getToken();
   const headers = Object.assign(
     {
       'content-type': 'application/json'
@@ -26,7 +27,12 @@ function request(options = {}) {
           return;
         }
 
-        const message = body.message || `请求失败：${res.statusCode}`;
+        const isAuthExpired = res.statusCode === 401 || body.code === 401;
+        if (isAuthExpired || res.statusCode === 403 || body.code === 403) {
+          clearSession();
+        }
+
+        const message = isAuthExpired ? '登录已失效，请重新登录' : body.message || `请求失败：${res.statusCode}`;
         wx.showToast({
           title: message,
           icon: 'none'

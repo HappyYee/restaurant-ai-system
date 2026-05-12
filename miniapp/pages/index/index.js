@@ -29,9 +29,10 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadProducts().then(() => {
-      wx.stopPullDownRefresh();
-    });
+    this.loadProducts().then(
+      () => wx.stopPullDownRefresh(),
+      () => wx.stopPullDownRefresh()
+    );
   },
 
   loadProducts() {
@@ -98,21 +99,22 @@ Page({
   },
 
   buildCategories(products) {
-    const categoryCount = products.reduce(
-      (map, product) => {
-        const category = product.category || '其他';
-        map[category] = (map[category] || 0) + 1;
-        map['全部'] += 1;
-        return map;
-      },
-      {
-        全部: 0
-      }
-    );
+    const categoryCount = new Map([['全部', 0]]);
+    products.forEach((product) => {
+      const category = product.category || '其他';
+      categoryCount.set('全部', categoryCount.get('全部') + 1);
+      categoryCount.set(category, (categoryCount.get(category) || 0) + 1);
+    });
 
-    return Object.keys(categoryCount).map((name) => ({
+    const preferredOrder = ['全部', '主食', '饮品', '小吃', '套餐', '其他'];
+    const orderedNames = [
+      ...preferredOrder.filter((name) => categoryCount.has(name)),
+      ...Array.from(categoryCount.keys()).filter((name) => !preferredOrder.includes(name))
+    ];
+
+    return orderedNames.map((name) => ({
       name,
-      count: categoryCount[name]
+      count: categoryCount.get(name)
     }));
   },
 

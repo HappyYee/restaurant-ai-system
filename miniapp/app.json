@@ -24,18 +24,26 @@
     "list": [
       {
         "pagePath": "pages/index/index",
+        "iconPath": "assets/tabbar/menu.png",
+        "selectedIconPath": "assets/tabbar/menu-active.png",
         "text": "点餐"
       },
       {
         "pagePath": "pages/ai-chat/ai-chat",
+        "iconPath": "assets/tabbar/ai.png",
+        "selectedIconPath": "assets/tabbar/ai-active.png",
         "text": "智能点餐"
       },
       {
         "pagePath": "pages/order-list/order-list",
+        "iconPath": "assets/tabbar/order.png",
+        "selectedIconPath": "assets/tabbar/order-active.png",
         "text": "订单"
       },
       {
         "pagePath": "pages/user/user",
+        "iconPath": "assets/tabbar/user.png",
+        "selectedIconPath": "assets/tabbar/user-active.png",
         "text": "会员"
       }
     ]

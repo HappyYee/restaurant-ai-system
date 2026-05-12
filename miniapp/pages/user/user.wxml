@@ -1,6 +1,6 @@
 <view class="page user-page">
   <view class="profile-card">
-    <view class="avatar">{{userInfo ? '客' : '未'}}</view>
+    <view class="avatar">{{avatarText}}</view>
     <view class="profile-main">
       <view class="nickname">{{userInfo ? userInfo.nickname : '未登录用户'}}</view>
       <view class="profile-subtitle">{{userInfo ? (memberProfile.memberLevel || '普通会员') + ' · 顾客编号 ' + userInfo.userId : '登录后可提交订单和查看历史订单'}}</view>

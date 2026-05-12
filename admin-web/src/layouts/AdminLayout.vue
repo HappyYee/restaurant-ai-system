@@ -74,7 +74,7 @@ function logout() {
         <div class="header-actions">
           <div class="header-status">
             <i />
-            <span>DeepSeek V4 在线</span>
+            <span>DeepSeek V4 Pro 在线</span>
           </div>
           <span class="header-date">{{ todayText }}</span>
           <span class="admin-name">{{ authStore.user?.nickname || '管理员' }}</span>

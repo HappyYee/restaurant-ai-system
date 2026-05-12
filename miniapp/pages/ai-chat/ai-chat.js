@@ -183,7 +183,12 @@ Page({
       .sort((a, b) => b.score - a.score || a.price - b.price);
 
     const first = this.composePlan('推荐方案', scored, budget);
-    const second = this.composePlan('加餐方案', scored.slice().reverse(), budget);
+    const firstItemIds = first.items.map((item) => item.id);
+    const secondCandidates = [
+      ...scored.filter((product) => !firstItemIds.includes(product.id)),
+      ...scored.filter((product) => firstItemIds.includes(product.id))
+    ];
+    const second = this.composePlan('加餐方案', secondCandidates, budget);
     return [first, second].filter((plan) => plan.items.length);
   },
 

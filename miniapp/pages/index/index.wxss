@@ -1,4 +1,11 @@
 .index-page {
+  min-height: 100vh;
+  padding-bottom: 32rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.index-page.has-cart {
   padding-bottom: 160rpx;
 }
 
@@ -90,7 +97,7 @@
 }
 
 .menu-layout {
-  height: calc(100vh - 500rpx);
+  flex: 1;
   min-height: 620rpx;
   display: grid;
   grid-template-columns: 164rpx 1fr;
