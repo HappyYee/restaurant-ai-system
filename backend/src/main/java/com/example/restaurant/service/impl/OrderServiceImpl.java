@@ -7,16 +7,20 @@ import com.example.restaurant.dto.OrderCreateRequest;
 import com.example.restaurant.entity.OrderItem;
 import com.example.restaurant.entity.Orders;
 import com.example.restaurant.entity.Product;
+import com.example.restaurant.entity.User;
 import com.example.restaurant.mapper.OrderItemMapper;
 import com.example.restaurant.mapper.OrdersMapper;
 import com.example.restaurant.mapper.ProductMapper;
+import com.example.restaurant.mapper.UserMapper;
 import com.example.restaurant.service.OrderService;
 import com.example.restaurant.vo.OrderVO;
+import com.example.restaurant.vo.ProductVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,6 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements OrderService {
     private final ProductMapper productMapper;
     private final OrderItemMapper orderItemMapper;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -47,12 +52,13 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
                 throw new BusinessException("库存不足：" + product.getName());
             }
 
-            BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
+            BigDecimal unitPrice = ProductVO.calcMemberPrice(product);
+            BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
             OrderItem orderItem = new OrderItem();
             orderItem.setProductId(product.getId());
             orderItem.setProductName(product.getName());
             orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setUnitPrice(product.getPrice());
+            orderItem.setUnitPrice(unitPrice);
             orderItem.setSubtotal(subtotal);
             orderItems.add(orderItem);
             totalAmount = totalAmount.add(subtotal);
@@ -74,6 +80,8 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
             orderItem.setOrderId(order.getId());
             orderItemMapper.insert(orderItem);
         }
+
+        refreshMemberAfterPaidOrder(userId, totalAmount);
 
         return OrderVO.from(order, orderItems);
     }
@@ -124,5 +132,32 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         int suffix = ThreadLocalRandom.current().nextInt(1000, 9999);
         return "RO" + time + suffix;
+    }
+
+    private void refreshMemberAfterPaidOrder(Long userId, BigDecimal totalAmount) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            return;
+        }
+        BigDecimal currentSpent = user.getTotalSpent() == null ? BigDecimal.ZERO : user.getTotalSpent();
+        BigDecimal nextSpent = currentSpent.add(totalAmount).setScale(2, RoundingMode.HALF_UP);
+        int currentPoints = user.getPoints() == null ? 0 : user.getPoints();
+        user.setTotalSpent(nextSpent);
+        user.setPoints(currentPoints + totalAmount.setScale(0, RoundingMode.DOWN).intValue());
+        user.setMemberLevel(resolveMemberLevel(nextSpent));
+        if (user.getMemberSince() == null) {
+            user.setMemberSince(LocalDateTime.now());
+        }
+        userMapper.updateById(user);
+    }
+
+    private String resolveMemberLevel(BigDecimal totalSpent) {
+        if (totalSpent.compareTo(new BigDecimal("300")) >= 0) {
+            return "金卡会员";
+        }
+        if (totalSpent.compareTo(new BigDecimal("100")) >= 0) {
+            return "银卡会员";
+        }
+        return "普通会员";
     }
 }

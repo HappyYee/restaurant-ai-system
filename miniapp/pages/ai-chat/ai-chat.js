@@ -1,10 +1,13 @@
 const { request } = require('../../utils/request');
 const config = require('../../utils/config');
+const { login } = require('../../utils/auth');
 const cartStore = require('../../utils/cart');
 
 Page({
   data: {
     prompt: '',
+    sessionId: '',
+    thinking: [],
     products: [],
     loading: true,
     errorMessage: '',
@@ -30,7 +33,10 @@ Page({
         this.setData({
           products: products.map((product) => ({
             ...product,
-            price: Number(product.price || 0),
+            originalPrice: Number(product.price || 0),
+            memberPrice: Number(product.memberPrice || product.price || 0),
+            price: Number(product.memberPrice || product.price || 0),
+            memberDiscountLabel: product.memberDiscountLabel || '会员价',
             stock: Number(product.stock || 0),
             cookTime: Number(product.cookTime || 0)
           })),
@@ -79,15 +85,76 @@ Page({
     }
 
     this.setData({
-      generating: true
+      generating: true,
+      thinking: ['正在读取会员档案', '正在分析口味、预算和库存']
     });
 
-    setTimeout(() => {
-      this.setData({
-        plans: this.buildPlans(prompt),
-        generating: false
+    login()
+      .then(() =>
+        request({
+          url: '/ai/order-recommend',
+          method: 'POST',
+          data: {
+            message: prompt,
+            sessionId: this.data.sessionId
+          }
+        })
+      )
+      .then((response) => {
+        const plans = this.normalizeAiPlans(response.plans || []);
+        this.setData({
+          sessionId: response.sessionId || this.data.sessionId,
+          thinking: response.thinking || [],
+          plans: plans.length ? plans : this.buildPlans(prompt),
+          generating: false
+        });
+      })
+      .catch(() => {
+        this.setData({
+          thinking: ['后端 AI 暂不可用，已切换本地推荐规则', '仍按会员价、库存和口味生成组合'],
+          plans: this.buildPlans(prompt),
+          generating: false
+        });
       });
-    }, 320);
+  },
+
+  normalizeAiPlans(plans) {
+    const productMap = this.data.products.reduce((map, product) => {
+      map[product.id] = product;
+      return map;
+    }, {});
+
+    return plans
+      .map((plan) => {
+        const items = (plan.items || [])
+          .map((item) => {
+            const product = productMap[item.productId];
+            if (!product) {
+              return null;
+            }
+            const quantity = Number(item.quantity || 1);
+            const unitPrice = Number(item.unitPrice || product.price || 0);
+            return {
+              ...product,
+              id: item.productId,
+              name: item.productName || item.name || product.name,
+              price: unitPrice,
+              memberPrice: unitPrice,
+              quantity,
+              subtotalText: cartStore.toMoney(unitPrice * quantity)
+            };
+          })
+          .filter(Boolean);
+        const total = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
+        return {
+          name: plan.name || 'AI 推荐方案',
+          reason: plan.reason || '根据会员价、库存和需求生成。',
+          items,
+          totalAmount: total,
+          totalAmountText: cartStore.toMoney(total)
+        };
+      })
+      .filter((plan) => plan.items.length);
   },
 
   buildPlans(prompt) {
@@ -164,6 +231,7 @@ Page({
       cartStore.addToCart(item, item.quantity);
     });
 
+    wx.setStorageSync('orderSource', 1);
     wx.navigateTo({
       url: '/pages/order-confirm/order-confirm'
     });

@@ -1,0 +1,11 @@
+package com.example.restaurant.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class AiChatRequest {
+    private String sessionId;
+    @NotBlank
+    private String message;
+}

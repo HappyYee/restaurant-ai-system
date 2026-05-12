@@ -15,6 +15,11 @@
     <button class="primary-btn" loading="{{generating}}" bindtap="generate">生成推荐</button>
   </view>
 
+  <view wx:if="{{thinking.length || generating}}" class="thinking-panel">
+    <text wx:for="{{thinking}}" wx:key="*this">{{item}}</text>
+    <text wx:if="{{generating}}">正在生成餐品组合</text>
+  </view>
+
   <scroll-view class="preset-scroll" scroll-x>
     <view class="preset-row">
       <button
@@ -55,8 +60,8 @@
       <view class="plan-items">
         <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="id" class="plan-item">
           <view>
-            <view class="dish-name">{{dish.name}}</view>
-            <view class="dish-meta">{{dish.category}} · {{dish.cookTime}}分钟</view>
+          <view class="dish-name">{{dish.name}}</view>
+            <view class="dish-meta">{{dish.category}} · 会员价 · {{dish.cookTime}}分钟</view>
           </view>
           <text class="dish-price">¥{{dish.subtotalText}}</text>
         </view>

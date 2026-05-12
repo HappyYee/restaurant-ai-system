@@ -13,11 +13,16 @@ function toMoney(value) {
 }
 
 function normalizeProduct(product) {
+  const originalPrice = Number(product.originalPrice || product.price || 0);
+  const memberPrice = Number(product.memberPrice || product.price || 0);
   return {
     id: product.id,
     name: product.name,
     category: product.category,
-    price: Number(product.price || 0),
+    price: memberPrice,
+    originalPrice,
+    memberPrice,
+    memberDiscountLabel: product.memberDiscountLabel || '',
     stock: Number(product.stock || 0),
     imageUrl: product.imageUrl || '',
     cookTime: product.cookTime || 0,

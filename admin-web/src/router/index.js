@@ -8,6 +8,7 @@ import OrderManage from '../views/OrderManage.vue'
 import InventoryManage from '../views/InventoryManage.vue'
 import StaffManage from '../views/StaffManage.vue'
 import FinanceDashboard from '../views/FinanceDashboard.vue'
+import MemberDashboard from '../views/MemberDashboard.vue'
 import AiAnalysis from '../views/AiAnalysis.vue'
 
 const routes = [
@@ -51,6 +52,12 @@ const routes = [
         name: 'staff',
         component: StaffManage,
         meta: { title: '人员管理' },
+      },
+      {
+        path: 'members',
+        name: 'members',
+        component: MemberDashboard,
+        meta: { title: '会员运营' },
       },
       {
         path: 'finance',

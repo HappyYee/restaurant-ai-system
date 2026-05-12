@@ -10,7 +10,9 @@ import com.example.restaurant.vo.WxLoginVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -29,8 +31,28 @@ public class AuthServiceImpl implements AuthService {
             user.setOpenid(openid);
             user.setNickname(request.getNickname());
             user.setAvatarUrl(request.getAvatarUrl());
+            initMemberFields(user);
             userMapper.insert(user);
+        } else if (user.getMemberLevel() == null || user.getPoints() == null || user.getTotalSpent() == null
+                || user.getMemberSince() == null) {
+            initMemberFields(user);
+            userMapper.updateById(user);
         }
         return new WxLoginVO(tokenUtil.createUserToken(user.getId()), user.getId(), user.getNickname());
+    }
+
+    private void initMemberFields(User user) {
+        if (user.getMemberLevel() == null) {
+            user.setMemberLevel("普通会员");
+        }
+        if (user.getPoints() == null) {
+            user.setPoints(0);
+        }
+        if (user.getTotalSpent() == null) {
+            user.setTotalSpent(BigDecimal.ZERO);
+        }
+        if (user.getMemberSince() == null) {
+            user.setMemberSince(LocalDateTime.now());
+        }
     }
 }

@@ -28,8 +28,11 @@ Page({
           loading: false,
           product: {
             ...product,
-            price: Number(product.price || 0),
-            priceText: cartStore.toMoney(product.price),
+            originalPrice: Number(product.price || 0),
+            memberPrice: Number(product.memberPrice || product.price || 0),
+            price: Number(product.memberPrice || product.price || 0),
+            priceText: cartStore.toMoney(product.memberPrice || product.price),
+            originalPriceText: cartStore.toMoney(product.price),
             stock: Number(product.stock || 0),
             coverText: product.name ? product.name.slice(0, 1) : '餐'
           },
@@ -96,6 +99,7 @@ Page({
 
   goConfirm() {
     this.addToCart();
+    wx.setStorageSync('orderSource', 0);
     setTimeout(() => {
       wx.navigateTo({
         url: '/pages/order-confirm/order-confirm'

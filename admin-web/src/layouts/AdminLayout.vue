@@ -28,6 +28,7 @@ const menus = [
   { path: '/orders', title: '订单管理', icon: Tickets },
   { path: '/inventory', title: '库存管理', icon: Goods },
   { path: '/staff', title: '人员管理', icon: UserFilled },
+  { path: '/members', title: '会员运营', icon: UserFilled },
   { path: '/finance', title: '财务看板', icon: Money },
   { path: '/ai-analysis', title: 'AI 经营分析', icon: MagicStick },
 ]

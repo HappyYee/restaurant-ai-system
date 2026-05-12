@@ -45,8 +45,11 @@ Page({
       .then((products = []) => {
         const normalized = products.map((product) => ({
           ...product,
-          price: Number(product.price || 0),
-          priceText: cartStore.toMoney(product.price),
+          originalPrice: Number(product.price || 0),
+          memberPrice: Number(product.memberPrice || product.price || 0),
+          price: Number(product.memberPrice || product.price || 0),
+          priceText: cartStore.toMoney(product.memberPrice || product.price),
+          originalPriceText: cartStore.toMoney(product.price),
           stock: Number(product.stock || 0),
           cookTime: Number(product.cookTime || 0),
           cartQuantity: 0,
@@ -168,6 +171,7 @@ Page({
     if (!this.data.cartSummary.totalQuantity) {
       return;
     }
+    wx.setStorageSync('orderSource', 0);
     wx.navigateTo({
       url: '/pages/order-confirm/order-confirm'
     });

@@ -3,10 +3,27 @@
     <view class="avatar">{{userInfo ? '客' : '未'}}</view>
     <view class="profile-main">
       <view class="nickname">{{userInfo ? userInfo.nickname : '未登录用户'}}</view>
-      <view class="profile-subtitle">{{userInfo ? '顾客编号 ' + userInfo.userId : '登录后可提交订单和查看历史订单'}}</view>
+      <view class="profile-subtitle">{{userInfo ? (memberProfile.memberLevel || '普通会员') + ' · 顾客编号 ' + userInfo.userId : '登录后可提交订单和查看历史订单'}}</view>
     </view>
     <button wx:if="{{!userInfo}}" class="login-btn" bindtap="login">登录</button>
     <button wx:else class="login-btn muted-btn" bindtap="logout">退出</button>
+  </view>
+
+  <view wx:if="{{userInfo}}" class="member-card">
+    <view class="member-head">
+      <view>
+        <view class="member-title">{{memberProfile.memberLevel || '普通会员'}}</view>
+        <view class="member-subtitle">饮品 85 折 · 其他餐品 9 折</view>
+      </view>
+      <view class="member-points">{{memberProfile.points || 0}} 积分</view>
+    </view>
+    <view class="progress-track">
+      <view class="progress-bar" style="width: {{memberProgress}}%;"></view>
+    </view>
+    <view class="member-foot">
+      <text>累计消费 ¥{{memberProfile.totalSpentText || '0.00'}}</text>
+      <text>{{memberProfile.nextLevelNeed == 0 ? '已达最高等级' : '距下级还差 ¥' + (memberProfile.nextLevelNeedText || '0.00')}}</text>
+    </view>
   </view>
 
   <view class="stats-grid">

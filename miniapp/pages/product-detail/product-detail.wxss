@@ -45,9 +45,33 @@
   color: #64748b;
 }
 
-.detail-head .price {
+.detail-price {
   flex-shrink: 0;
+  text-align: right;
+}
+
+.detail-price .price {
+  display: block;
   font-size: 40rpx;
+}
+
+.member-badge {
+  display: inline-flex;
+  margin-bottom: 8rpx;
+  padding: 5rpx 10rpx;
+  border-radius: 8rpx;
+  background: #fff7ed;
+  color: #f97316;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.origin-price {
+  display: block;
+  margin-top: 4rpx;
+  color: #94a3b8;
+  font-size: 22rpx;
+  text-decoration: line-through;
 }
 
 .tag-row {

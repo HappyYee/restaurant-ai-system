@@ -33,7 +33,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        if (path.startsWith("/api/orders")) {
+        if (path.startsWith("/api/orders") || path.startsWith("/api/member") || path.startsWith("/api/ai")) {
             TokenInfo tokenInfo = tokenUtil.requireToken(resolveToken(request), TokenRole.USER);
             request.setAttribute(CURRENT_USER_ID, tokenInfo.userId());
             return true;

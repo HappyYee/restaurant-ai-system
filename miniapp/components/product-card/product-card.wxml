@@ -14,7 +14,13 @@
     </view>
     <text class="product-desc">{{product.description}}</text>
     <view class="product-foot">
-      <text class="price">¥{{product.priceText}}</text>
+      <view class="price-box">
+        <text class="member-badge">{{product.memberDiscountLabel || '会员价'}}</text>
+        <view>
+          <text class="price">¥{{product.priceText}}</text>
+          <text class="origin-price">¥{{product.originalPriceText}}</text>
+        </view>
+      </view>
       <view class="stepper" catchtap="stopTap">
         <button wx:if="{{product.cartQuantity > 0}}" class="qty-btn" catchtap="minusProduct">−</button>
         <text wx:if="{{product.cartQuantity > 0}}" class="qty-text">{{product.cartQuantity}}</text>

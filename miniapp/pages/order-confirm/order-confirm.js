@@ -20,7 +20,8 @@ Page({
   loadCart() {
     const items = cartStore.getCart().map((item) => ({
       ...item,
-      subtotalText: cartStore.toMoney(Number(item.price || 0) * Number(item.quantity || 0))
+      subtotalText: cartStore.toMoney(Number(item.price || 0) * Number(item.quantity || 0)),
+      originalSubtotalText: cartStore.toMoney(Number(item.originalPrice || item.price || 0) * Number(item.quantity || 0))
     }));
 
     this.setData({
@@ -75,12 +76,13 @@ Page({
               quantity: item.quantity
             })),
             remark: this.data.remark,
-            source: 0
+            source: wx.getStorageSync('orderSource') || 0
           }
         })
       )
       .then((order) => {
         cartStore.clearCart();
+        wx.removeStorageSync('orderSource');
         wx.redirectTo({
           url: `/pages/order-success/order-success?orderNo=${order.orderNo}&amount=${order.totalAmount}`
         });

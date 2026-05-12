@@ -66,6 +66,59 @@
   gap: 18rpx;
 }
 
+.member-card {
+  margin-top: 22rpx;
+  padding: 26rpx;
+  border-radius: 22rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 36rpx rgba(15, 23, 42, 0.06);
+}
+
+.member-head,
+.member-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.member-title {
+  color: #111827;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.member-subtitle,
+.member-foot {
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 23rpx;
+}
+
+.member-points {
+  flex-shrink: 0;
+  padding: 10rpx 16rpx;
+  border-radius: 999rpx;
+  background: #fff7ed;
+  color: #f97316;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+.progress-track {
+  height: 16rpx;
+  margin-top: 24rpx;
+  border-radius: 999rpx;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: #0f766e;
+}
+
 .stat-card {
   min-height: 138rpx;
   padding: 22rpx;

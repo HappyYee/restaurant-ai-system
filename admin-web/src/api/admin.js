@@ -13,9 +13,42 @@ const STAFF_KEY = 'restaurant_mock_staff'
 const MONTHLY_FINANCE_KEY = 'restaurant_mock_monthly_finance'
 const ANNUAL_FINANCE_KEY = 'restaurant_mock_annual_finance'
 const FINANCE_RECORD_KEY = 'restaurant_mock_finance_records_v2'
+const MEMBER_KEY = 'restaurant_mock_members_v1'
+const TOKEN_KEY = 'restaurant_admin_token'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080/api'
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const sleep = (ms = 180) => new Promise((resolve) => setTimeout(resolve, ms))
+
+async function backendRequest(path, options = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  }
+  const token = localStorage.getItem(TOKEN_KEY)
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: options.method || 'GET',
+    headers,
+    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+  })
+  const body = await response.json().catch(() => ({}))
+  if (response.ok && body.code === 200) {
+    return body.data
+  }
+  throw new Error(body.message || `后端请求失败：${response.status}`)
+}
+
+async function tryBackend(path, options) {
+  try {
+    return await backendRequest(path, options)
+  } catch (error) {
+    console.warn('[admin-api] fallback to local mock:', path, error.message)
+    return null
+  }
+}
 
 function read(key, fallback) {
   const value = localStorage.getItem(key)
@@ -53,6 +86,38 @@ function getAnnualFinance() {
 
 function getFinanceRecords() {
   return read(FINANCE_RECORD_KEY, initialFinanceRecords)
+}
+
+function getMembers() {
+  return read(MEMBER_KEY, [
+    {
+      userId: 1,
+      nickname: '微信用户',
+      memberLevel: '金卡会员',
+      points: 426,
+      totalSpent: 426.8,
+      memberSince: '2026-04-18 12:20:00',
+      nextLevelNeed: 0,
+    },
+    {
+      userId: 2,
+      nickname: '午餐常客',
+      memberLevel: '银卡会员',
+      points: 168,
+      totalSpent: 168.5,
+      memberSince: '2026-04-29 09:35:00',
+      nextLevelNeed: 131.5,
+    },
+    {
+      userId: 3,
+      nickname: '清淡饮食用户',
+      memberLevel: '普通会员',
+      points: 63,
+      totalSpent: 63.2,
+      memberSince: '2026-05-02 18:15:00',
+      nextLevelNeed: 36.8,
+    },
+  ])
 }
 
 function isSameDay(dateText, offset = 0) {
@@ -270,6 +335,20 @@ function summarizeFinance(records, revenueType = 'all') {
 }
 
 export async function login({ username, password }) {
+  const backendResult = await tryBackend('/admin/auth/login', {
+    method: 'POST',
+    body: { username, password },
+  })
+  if (backendResult?.token) {
+    return {
+      token: backendResult.token,
+      user: {
+        id: backendResult.adminId,
+        username: backendResult.username,
+        nickname: '门店管理员',
+      },
+    }
+  }
   await sleep()
   if (username === 'admin' && password === '123456') {
     return {
@@ -282,6 +361,46 @@ export async function login({ username, password }) {
     }
   }
   throw new Error('账号或密码错误，演示账号：admin / 123456')
+}
+
+export async function fetchMembers(params = {}) {
+  const backendResult = await tryBackend('/admin/members')
+  if (backendResult) {
+    return backendResult
+  }
+  await sleep()
+  const keyword = params.keyword?.trim().toLowerCase()
+  return getMembers().filter((member) => {
+    const matchKeyword =
+      !keyword ||
+      member.nickname.toLowerCase().includes(keyword) ||
+      String(member.userId).includes(keyword) ||
+      member.memberLevel.toLowerCase().includes(keyword)
+    const matchLevel = !params.level || member.memberLevel === params.level
+    return matchKeyword && matchLevel
+  })
+}
+
+export async function fetchMemberStats() {
+  const backendResult = await tryBackend('/admin/members/stats')
+  if (backendResult) {
+    return backendResult
+  }
+  await sleep()
+  const members = getMembers()
+  const levelDistribution = members.reduce((map, member) => {
+    map[member.memberLevel] = (map[member.memberLevel] || 0) + 1
+    return map
+  }, {})
+  const totalMemberSpent = sum(members, (member) => Number(member.totalSpent || 0))
+  return {
+    memberCount: members.length,
+    totalMemberSpent: money(totalMemberSpent),
+    avgMemberSpent: members.length ? money(totalMemberSpent / members.length) : 0,
+    totalPoints: sum(members, (member) => Number(member.points || 0)),
+    levelDistribution,
+    topMembers: members.slice().sort((a, b) => b.totalSpent - a.totalSpent).slice(0, 8),
+  }
 }
 
 export async function fetchProducts(params = {}) {
@@ -664,5 +783,25 @@ export async function fetchAiAnalysis() {
       },
     ],
     suggestions: ['把热销主食与饮品组合成午餐套餐', '对库存低于 10 的菜品设置预警', '根据午晚高峰订单量调整兼职排班', '跟踪食材成本率，优先优化毛利偏低菜品'],
+  }
+}
+
+export async function chatBusinessAi({ message, sessionId }) {
+  const backendResult = await tryBackend('/admin/ai/business-chat', {
+    method: 'POST',
+    body: {
+      message,
+      sessionId,
+    },
+  })
+  if (backendResult) {
+    return backendResult
+  }
+  const stats = await fetchDashboardStats()
+  return {
+    sessionId: sessionId || `local-${Date.now()}`,
+    thinking: ['读取经营看板指标', '结合会员消费、库存和成本结构', '后端 AI 暂不可用，使用本地规则生成'],
+    answer: `当前今日营业额 ${stats.revenueToday.toFixed(2)} 元，今日订单 ${stats.orderToday} 单，净利约 ${stats.netProfitToday.toFixed(2)} 元。针对“${message}”，建议优先看热销菜品组合、会员复购转化和库存风险三件事。`,
+    actions: ['把热销主食与饮品设置成会员套餐', '对低库存菜品设置小程序临时隐藏或预警', '追问具体月份、成本项或会员等级获得更细分析'],
   }
 }

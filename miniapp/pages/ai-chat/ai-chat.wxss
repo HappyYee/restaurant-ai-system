@@ -46,6 +46,25 @@
   white-space: nowrap;
 }
 
+.thinking-panel {
+  margin-top: 18rpx;
+  padding: 18rpx;
+  border-radius: 16rpx;
+  background: #ffffff;
+  box-shadow: 0 10rpx 28rpx rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.thinking-panel text {
+  padding: 6rpx 12rpx;
+  border-radius: 999rpx;
+  background: #eef6f2;
+  color: #0f766e;
+  font-size: 22rpx;
+}
+
 .preset-row {
   display: inline-flex;
   gap: 14rpx;

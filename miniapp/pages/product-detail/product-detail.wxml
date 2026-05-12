@@ -21,7 +21,11 @@
           <view class="name">{{product.name}}</view>
           <view class="category">{{product.category}} · {{product.cookTime}}分钟出餐</view>
         </view>
-        <view class="price">¥{{product.priceText}}</view>
+        <view class="detail-price">
+          <text class="member-badge">{{product.memberDiscountLabel || '会员价'}}</text>
+          <text class="price">¥{{product.priceText}}</text>
+          <text class="origin-price">原价 ¥{{product.originalPriceText}}</text>
+        </view>
       </view>
 
       <view class="tag-row">

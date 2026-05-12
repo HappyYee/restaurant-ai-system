@@ -15,9 +15,12 @@
         </view>
         <view class="item-main">
           <view class="item-name">{{item.name}}</view>
-          <view class="item-meta">{{item.category}} · 库存 {{item.stock}}</view>
+          <view class="item-meta">{{item.category}} · {{item.memberDiscountLabel || '会员价'}} · 库存 {{item.stock}}</view>
           <view class="item-foot">
-            <text class="price">¥{{item.subtotalText}}</text>
+            <view>
+              <text class="price">¥{{item.subtotalText}}</text>
+              <text class="origin-price">原价 ¥{{item.originalSubtotalText}}</text>
+            </view>
             <view class="stepper">
               <button class="qty-btn" data-id="{{item.id}}" bindtap="decrease">−</button>
               <text class="qty-text">{{item.quantity}}</text>
@@ -47,6 +50,10 @@
     </view>
 
     <view class="summary-panel">
+      <view class="summary-row">
+        <text>会员优惠</text>
+        <text>已按会员价结算</text>
+      </view>
       <view class="summary-row">
         <text>餐品数量</text>
         <text>{{summary.totalQuantity}} 件</text>
