@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -21,6 +22,7 @@ public class DataInitializer {
     private final JdbcTemplate jdbcTemplate;
 
     @Bean
+    @Order(1)
     public CommandLineRunner schemaCompatibilityRunner() {
         return args -> {
             ensureColumn("user", "member_level", "VARCHAR(20) NOT NULL DEFAULT '普通会员' COMMENT '会员等级'");
@@ -35,6 +37,7 @@ public class DataInitializer {
     }
 
     @Bean
+    @Order(2)
     public CommandLineRunner defaultAdminRunner() {
         return args -> {
             Long count = adminUserMapper.selectCount(

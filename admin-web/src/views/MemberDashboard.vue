@@ -1,7 +1,14 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
+import { use } from 'echarts/core'
+import { PieChart } from 'echarts/charts'
+import { LegendComponent, TooltipComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+import VChart from 'vue-echarts'
 import { Refresh, Search, UserFilled } from '@element-plus/icons-vue'
 import { fetchMembers, fetchMemberStats } from '../api/admin'
+
+use([PieChart, LegendComponent, TooltipComponent, CanvasRenderer])
 
 const loading = ref(false)
 const members = ref([])
@@ -45,6 +52,24 @@ const topMembers = computed(() =>
     .sort((a, b) => Number(b.totalSpent || 0) - Number(a.totalSpent || 0))
     .slice(0, 6),
 )
+
+const levelOption = computed(() => ({
+  color: ['#94a3b8', '#16a06f', '#d8891c'],
+  tooltip: { trigger: 'item' },
+  legend: { bottom: 0 },
+  series: [
+    {
+      name: '会员等级',
+      type: 'pie',
+      radius: ['48%', '72%'],
+      center: ['50%', '42%'],
+      data: levelRows.value.map((item) => ({
+        name: item.level,
+        value: item.count,
+      })),
+    },
+  ],
+}))
 
 function money(value) {
   return Number(value || 0).toFixed(2)
@@ -107,6 +132,7 @@ onMounted(loadData)
           <h2>等级构成</h2>
           <el-button :icon="Refresh" :loading="loading" @click="loadData">刷新</el-button>
         </div>
+        <VChart class="member-chart" :option="levelOption" autoresize />
         <div class="level-list">
           <div v-for="item in levelRows" :key="item.level" class="level-row">
             <div class="level-title">
@@ -178,6 +204,10 @@ onMounted(loadData)
   grid-template-columns: minmax(0, 1.2fr) minmax(360px, 0.8fr);
   gap: 24px;
   align-items: center;
+  color: #ffffff;
+  background:
+    linear-gradient(135deg, rgba(13, 50, 38, 0.98), rgba(72, 95, 35, 0.92)),
+    #0f3b2e;
 }
 
 .member-copy h2 {
@@ -191,11 +221,16 @@ onMounted(loadData)
   color: var(--text-muted);
 }
 
+.member-copy p {
+  max-width: 720px;
+  color: rgba(255, 255, 255, 0.76);
+}
+
 .panel-kicker {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--primary);
+  color: #a8f3d3;
   font-weight: 700;
 }
 
@@ -207,9 +242,9 @@ onMounted(loadData)
 
 .member-metrics div {
   padding: 16px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 8px;
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .member-metrics span,
@@ -222,7 +257,12 @@ onMounted(loadData)
 .member-metrics strong {
   display: block;
   margin-top: 8px;
+  color: #ffffff;
   font-size: 22px;
+}
+
+.member-metrics span {
+  color: rgba(255, 255, 255, 0.68);
 }
 
 .member-grid {
@@ -235,6 +275,12 @@ onMounted(loadData)
 .rank-list {
   display: grid;
   gap: 14px;
+}
+
+.member-chart {
+  width: 100%;
+  height: 260px;
+  margin-bottom: 12px;
 }
 
 .level-title,

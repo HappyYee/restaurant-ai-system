@@ -76,6 +76,38 @@ const metricCards = computed(() => [
   },
 ])
 
+const aiOrderRatio = computed(() => {
+  const sources = stats.value?.sourceRevenue || []
+  const total = sources.reduce((sum, item) => sum + Number(item.orderCount || 0), 0)
+  const aiOrders = sources
+    .filter((item) => String(item.name || '').toLowerCase().includes('ai'))
+    .reduce((sum, item) => sum + Number(item.orderCount || 0), 0)
+  return total ? Math.round((aiOrders / total) * 100) : 0
+})
+
+const heroStats = computed(() => [
+  {
+    label: 'AI 点餐占比',
+    value: `${aiOrderRatio.value}%`,
+    note: '订单来源结构',
+  },
+  {
+    label: '净利率',
+    value: `${stats.value?.profitMargin || 0}%`,
+    note: '今日经营质量',
+  },
+  {
+    label: '会员总数',
+    value: stats.value?.memberCount || 0,
+    note: '可运营资产',
+  },
+  {
+    label: '成本率',
+    value: `${stats.value?.foodCostRate || 0}%`,
+    note: '食材成本控制',
+  },
+])
+
 const detailTitles = {
   revenue: '营业额明细',
   profit: '餐品利润明细',
@@ -302,6 +334,26 @@ onMounted(async () => {
 
 <template>
   <div v-loading="loading" class="page-stack">
+    <section class="dashboard-hero">
+      <div class="dashboard-hero-main">
+        <p class="eyebrow">Restaurant Intelligence Center</p>
+        <h2>星禾小馆经营中枢</h2>
+        <p>把营业额、利润、人力、库存、会员和 AI 点餐数据集中到一个实时面板里，适合店长每天开门前、午高峰后和收档前快速判断。</p>
+        <div class="hero-chip-row">
+          <span>今日营收 {{ yuan(stats?.revenueToday) }}</span>
+          <span>本月利润 {{ yuan(stats?.monthProfit) }}</span>
+          <span>低库存 {{ stats?.lowStockCount || 0 }} 项</span>
+        </div>
+      </div>
+      <div class="hero-signal-grid">
+        <div v-for="item in heroStats" :key="item.label">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+          <small>{{ item.note }}</small>
+        </div>
+      </div>
+    </section>
+
     <section class="metric-grid finance-metrics">
       <article v-for="card in metricCards" :key="card.title" class="metric-card metric-card-clickable" @click="openDetail(card.detail)">
         <div class="metric-icon">

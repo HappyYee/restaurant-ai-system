@@ -82,7 +82,7 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const authStore = useAuthStore()
-  document.title = `${to.meta.title || '管理后台'} - 餐饮门店管理系统`
+  document.title = `${to.meta.title || '管理后台'} - 星禾小馆 AI 经营后台`
   if (!to.meta.public && !authStore.isLoggedIn) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }

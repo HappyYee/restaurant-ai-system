@@ -24,6 +24,7 @@ import com.example.restaurant.vo.ProductVO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -55,6 +56,7 @@ public class AiServiceImpl implements AiService {
     private final AiChatLogMapper aiChatLogMapper;
     private final BusinessStatsService businessStatsService;
     private final MemberService memberService;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public AiChatResponseVO businessChat(Long adminId, AiChatRequest request) {
@@ -144,7 +146,108 @@ public class AiServiceImpl implements AiService {
         context.put("memberStats", memberStats);
         context.put("lowStockProducts", lowStock.stream().map(this::productBrief).toList());
         context.put("availableProducts", products.stream().map(this::productBrief).toList());
+        context.put("databaseContext", businessDatabaseContext());
         return "门店数据上下文：" + safeWrite(context) + "\n店长问题：" + question;
+    }
+
+    private Map<String, Object> businessDatabaseContext() {
+        Map<String, Object> context = new LinkedHashMap<>();
+        context.put("recent14DayOrderTrend", queryList("""
+                SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date,
+                       COUNT(*) AS orderCount,
+                       ROUND(SUM(total_amount), 2) AS revenue,
+                       ROUND(AVG(total_amount), 2) AS avgTicket,
+                       ROUND(SUM(points_discount), 2) AS pointsDiscount,
+                       SUM(points_earned) AS pointsEarned,
+                       ROUND(SUM(CASE WHEN source = 1 THEN total_amount ELSE 0 END), 2) AS aiOrderRevenue
+                FROM orders
+                WHERE status <> 3 AND create_time >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)
+                GROUP BY DATE(create_time)
+                ORDER BY DATE(create_time)
+                """));
+        context.put("productSalesLast30Days", queryList("""
+                SELECT oi.product_name AS productName,
+                       p.category AS category,
+                       SUM(oi.quantity) AS quantity,
+                       ROUND(SUM(oi.subtotal), 2) AS revenue,
+                       ROUND(SUM((oi.unit_price - p.cost_price) * oi.quantity), 2) AS grossProfit
+                FROM order_item oi
+                JOIN orders o ON oi.order_id = o.id
+                LEFT JOIN product p ON oi.product_id = p.id
+                WHERE o.status <> 3 AND o.create_time >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                GROUP BY oi.product_name, p.category
+                ORDER BY revenue DESC
+                LIMIT 10
+                """));
+        context.put("orderSourceLast30Days", queryList("""
+                SELECT CASE source WHEN 1 THEN 'AI点餐' ELSE '普通点餐' END AS sourceName,
+                       COUNT(*) AS orderCount,
+                       ROUND(SUM(total_amount), 2) AS revenue,
+                       ROUND(AVG(total_amount), 2) AS avgTicket
+                FROM orders
+                WHERE status <> 3 AND create_time >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                GROUP BY source
+                ORDER BY revenue DESC
+                """));
+        context.put("topMembers", queryList("""
+                SELECT id AS userId, nickname, member_level AS memberLevel,
+                       points, ROUND(total_spent, 2) AS totalSpent,
+                       DATE_FORMAT(member_since, '%Y-%m-%d') AS memberSince
+                FROM `user`
+                ORDER BY total_spent DESC, points DESC
+                LIMIT 12
+                """));
+        context.put("memberLevelDistribution", queryList("""
+                SELECT member_level AS memberLevel,
+                       COUNT(*) AS memberCount,
+                       ROUND(SUM(total_spent), 2) AS totalSpent,
+                       SUM(points) AS points
+                FROM `user`
+                GROUP BY member_level
+                ORDER BY totalSpent DESC
+                """));
+        context.put("staffCostStructure", queryList("""
+                SELECT role,
+                       COUNT(*) AS staffCount,
+                       ROUND(SUM(CASE WHEN salary_type = '时薪'
+                                      THEN hourly_wage * work_hours_this_month
+                                      ELSE monthly_salary END), 2) AS monthlyLaborCost
+                FROM staff
+                WHERE status = 1
+                GROUP BY role
+                ORDER BY monthlyLaborCost DESC
+                """));
+        context.put("financeHistory", queryList("""
+                SELECT record_month AS month,
+                       ROUND(dine_in_revenue + miniapp_revenue + ai_order_revenue + delivery_revenue, 2) AS revenue,
+                       ROUND(food_cost + manager_labor_cost + employee_labor_cost + part_time_labor_cost +
+                             rent_cost + utilities_cost + marketing_cost + platform_fee + equipment_cost + other_cost, 2) AS totalCost,
+                       ROUND(food_cost, 2) AS foodCost,
+                       ROUND(manager_labor_cost + employee_labor_cost + part_time_labor_cost, 2) AS laborCost,
+                       ROUND(marketing_cost, 2) AS marketingCost,
+                       ROUND((dine_in_revenue + miniapp_revenue + ai_order_revenue + delivery_revenue) -
+                             (food_cost + manager_labor_cost + employee_labor_cost + part_time_labor_cost +
+                              rent_cost + utilities_cost + marketing_cost + platform_fee + equipment_cost + other_cost), 2) AS profit
+                FROM finance_record
+                ORDER BY record_month DESC
+                LIMIT 12
+                """));
+        context.put("inventorySnapshot", queryList("""
+                SELECT name, category, stock, price, cost_price AS costPrice, taste_tags AS tasteTags
+                FROM product
+                WHERE deleted = 0
+                ORDER BY stock ASC, category
+                LIMIT 20
+                """));
+        return context;
+    }
+
+    private List<Map<String, Object>> queryList(String sql) {
+        try {
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception ex) {
+            return List.of(Map.of("error", ex.getMessage()));
+        }
     }
 
     private String buildOrderUserPrompt(User user, List<Product> products, String message) {

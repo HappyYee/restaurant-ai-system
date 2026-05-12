@@ -551,6 +551,10 @@ export async function updateStaffStatus(id, status) {
 }
 
 export async function fetchDashboardStats() {
+  const backendResult = await tryBackend('/admin/stats/dashboard')
+  if (backendResult) {
+    return backendResult
+  }
   await sleep()
   const products = getProducts()
   const orders = getOrders()

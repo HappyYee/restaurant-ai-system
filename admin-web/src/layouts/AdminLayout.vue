@@ -21,6 +21,11 @@ const authStore = useAuthStore()
 
 const activeMenu = computed(() => route.path)
 const pageTitle = computed(() => route.meta.title || '管理后台')
+const todayText = new Intl.DateTimeFormat('zh-CN', {
+  month: '2-digit',
+  day: '2-digit',
+  weekday: 'short',
+}).format(new Date())
 
 const menus = [
   { path: '/dashboard', title: '经营看板', icon: House },
@@ -47,8 +52,8 @@ function logout() {
           <el-icon><DataAnalysis /></el-icon>
         </div>
         <div>
-          <strong>餐饮门店</strong>
-          <span>智能经营后台</span>
+          <strong>星禾小馆</strong>
+          <span>AI Restaurant Ops</span>
         </div>
       </div>
 
@@ -67,7 +72,12 @@ function logout() {
           <h1>{{ pageTitle }}</h1>
         </div>
         <div class="header-actions">
-          <span>{{ authStore.user?.nickname || '管理员' }}</span>
+          <div class="header-status">
+            <i />
+            <span>DeepSeek V4 在线</span>
+          </div>
+          <span class="header-date">{{ todayText }}</span>
+          <span class="admin-name">{{ authStore.user?.nickname || '管理员' }}</span>
           <el-button :icon="SwitchButton" @click="logout">退出</el-button>
         </div>
       </el-header>

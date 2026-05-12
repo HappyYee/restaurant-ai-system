@@ -206,6 +206,11 @@ onMounted(() => {
   justify-content: space-between;
   gap: 24px;
   align-items: center;
+  overflow: hidden;
+  color: #ffffff;
+  background:
+    linear-gradient(135deg, rgba(13, 50, 38, 0.98), rgba(26, 98, 73, 0.94)),
+    #0f3b2e;
 }
 
 .ai-hero h2 {
@@ -215,23 +220,24 @@ onMounted(() => {
 
 .ai-hero p {
   margin: 0;
-  color: var(--text-muted);
+  max-width: 720px;
+  color: rgba(255, 255, 255, 0.76);
 }
 
 .ai-kicker {
   display: inline-flex;
   gap: 6px;
   align-items: center;
-  color: var(--primary);
+  color: #a8f3d3;
   font-weight: 700;
 }
 
 .ai-status {
   width: 260px;
   padding: 16px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .ai-status span,
@@ -242,9 +248,14 @@ onMounted(() => {
   font-size: 13px;
 }
 
+.ai-status span {
+  color: rgba(255, 255, 255, 0.68);
+}
+
 .ai-status strong {
   display: block;
   margin: 8px 0;
+  color: #ffffff;
   font-size: 22px;
 }
 
@@ -264,11 +275,21 @@ onMounted(() => {
 
 .quick-row button {
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 7px 12px;
   background: #ffffff;
   color: #344054;
   cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.quick-row button:hover {
+  border-color: rgba(22, 132, 95, 0.44);
+  color: var(--primary);
+  box-shadow: 0 8px 20px rgba(18, 45, 34, 0.08);
 }
 
 .chat-list {
@@ -293,6 +314,7 @@ onMounted(() => {
   border-radius: 8px;
   border: 1px solid var(--border);
   background: #ffffff;
+  box-shadow: 0 8px 20px rgba(18, 45, 34, 0.06);
 }
 
 .chat-message.user .bubble {
@@ -319,7 +341,7 @@ onMounted(() => {
 
 .thinking span {
   padding: 3px 7px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: #eef6f2;
 }
 
