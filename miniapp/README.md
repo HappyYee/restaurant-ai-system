@@ -20,22 +20,18 @@
 
 ## 后端接口
 
-默认请求地址在 `utils/config.js`。开发版会优先访问当前 Mac 的局域网地址，并在失败时尝试开发者工具可用的 localhost 地址：
+默认请求地址在 `utils/config.js`。开发版优先访问开发者工具所在电脑的 localhost 地址：
 
 ```js
-developCandidates: [
-  'http://10.156.217.62:8080/api',
-  'http://192.168.1.3:8080/api',
-  'http://127.0.0.1:8080/api'
-]
+developCandidates: ['http://127.0.0.1:8080/api', 'http://localhost:8080/api']
 trial: 'https://your-domain.example.com/api'
 release: 'https://your-domain.example.com/api'
 ```
 
-如果 Mac 的局域网 IP 变化，可以在微信开发者工具 Storage 中写入：
+真机调试时，手机无法访问电脑的 `127.0.0.1`，需要在微信开发者工具 Storage 中写入电脑局域网 IP：
 
 ```js
-restaurant_api_base_url = 'http://你的Mac局域网IP:8080/api'
+restaurant_api_base_url = 'http://你的电脑局域网IP:8080/api'
 ```
 
 这样不会把开发机 IP 打进代码包。正式版需要把 `release` 改成已备案并配置到微信后台的 HTTPS 域名。
@@ -57,7 +53,6 @@ export DEEPSEEK_MODEL="deepseek-v4-pro"
 
 ```bash
 curl http://127.0.0.1:8080/api/products
-curl http://10.156.217.62:8080/api/products
 ```
 
 只要这个接口能返回菜品 JSON，真机小程序首页就能显示后端数据。

@@ -79,3 +79,19 @@ restaurant_api_base_url = 'http://你的Mac局域网IP:8080/api'
 ## 说明
 
 DeepSeek 默认模型通过 `DEEPSEEK_MODEL` 配置，未配置时使用 `deepseek-v4-pro`。真实 API Key 不应提交到仓库，应通过环境变量配置；如果未配置 Key，系统会使用本地规则兜底，保证演示流程可继续。
+
+## Windows 演示部署
+
+另一台 Windows 电脑可以直接从 GitHub 拉取项目运行演示。推荐按文档操作：
+
+```text
+docs/WINDOWS_DEMO.md
+```
+
+快速启动脚本：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\windows\start-demo.ps1
+```
+
+首次运行前需要安装 JDK 21+、Node.js 20+、MySQL 8、微信开发者工具，并复制 `scripts/windows/env.demo.ps1.example` 为 `scripts/windows/env.demo.ps1` 填写本机 MySQL 密码。DeepSeek Key 不会上传 GitHub，换电脑后如需真实 AI 调用，也要在这个本地配置文件里填写。

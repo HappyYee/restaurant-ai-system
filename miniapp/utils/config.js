@@ -1,9 +1,8 @@
 const API_BASE_URL_STORAGE_KEY = 'restaurant_api_base_url';
-const LOCAL_NETWORK_BASE_URL = 'http://10.156.217.62:8080/api';
-const FALLBACK_NETWORK_BASE_URL = 'http://192.168.1.3:8080/api';
 const LOCALHOST_BASE_URL = 'http://127.0.0.1:8080/api';
+const LOCALHOST_NAME_BASE_URL = 'http://localhost:8080/api';
 const ENV_BASE_URLS = {
-  develop: LOCAL_NETWORK_BASE_URL,
+  develop: LOCALHOST_BASE_URL,
   trial: 'https://your-domain.example.com/api',
   release: 'https://your-domain.example.com/api'
 };
@@ -42,7 +41,7 @@ function getBaseUrls() {
   }
   urls.push(envBaseUrl);
   if (envVersion === 'develop') {
-    urls.push(LOCAL_NETWORK_BASE_URL, FALLBACK_NETWORK_BASE_URL, LOCALHOST_BASE_URL);
+    urls.push(LOCALHOST_BASE_URL, LOCALHOST_NAME_BASE_URL);
   }
   return uniqueUrls(urls);
 }

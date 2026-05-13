@@ -13,6 +13,7 @@
 .env.*
 !.env.example
 application-local.yml
+scripts/windows/env.demo.ps1
 
 # Node / Vue
 node_modules/
