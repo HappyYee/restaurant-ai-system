@@ -10,7 +10,7 @@
   </view>
 
   <view wx:else>
-    <image wx:if="{{product.imageUrl}}" class="hero-image" src="{{product.imageUrl}}" mode="aspectFill" />
+    <image wx:if="{{product.imageUrl && !imageFailed}}" class="hero-image" src="{{product.imageUrl}}" mode="aspectFill" lazy-load binderror="onImageError" />
     <view wx:else class="hero-image detail-cover">
       <text>{{product.coverText}}</text>
     </view>
@@ -37,15 +37,14 @@
         <view class="description">{{product.description}}</view>
       </view>
 
-      <view class="stock-row">
-        <text>当前库存</text>
-        <text>{{product.stock}} 份</text>
+      <view wx:if="{{product.stockWarningText}}" class="stock-warning {{product.stock <= 0 ? 'empty' : ''}}">
+        <text>{{product.stockWarningText}}</text>
       </view>
 
       <view class="quantity-row">
         <text>购买数量</text>
-        <view class="stepper">
-          <button class="qty-btn" disabled="{{quantity <= 0}}" bindtap="decrease">−</button>
+        <view class="quantity-tools">
+          <button class="qty-btn minus" disabled="{{quantity <= 0}}" bindtap="decrease">−</button>
           <text class="qty-text">{{quantity}}</text>
           <button class="qty-btn add" bindtap="increase">+</button>
         </view>

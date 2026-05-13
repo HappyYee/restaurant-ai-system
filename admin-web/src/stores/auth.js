@@ -45,6 +45,11 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(initialAuth.user)
   const isLoggedIn = computed(() => Boolean(token.value))
 
+  window.addEventListener('restaurant-admin-auth-expired', () => {
+    token.value = ''
+    user.value = null
+  })
+
   async function login(form) {
     const result = await loginApi(form)
     token.value = result.token

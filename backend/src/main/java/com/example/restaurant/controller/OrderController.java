@@ -9,12 +9,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,5 +34,11 @@ public class OrderController {
     public Result<List<OrderVO>> listMyOrders(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute(LoginInterceptor.CURRENT_USER_ID);
         return Result.success(orderService.listUserOrders(userId));
+    }
+
+    @GetMapping("/{id}/status")
+    public Result<Map<String, Object>> getOrderStatus(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(LoginInterceptor.CURRENT_USER_ID);
+        return Result.success(orderService.getOrderStatus(userId, id));
     }
 }

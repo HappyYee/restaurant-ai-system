@@ -8,6 +8,7 @@ Page({
     prompt: '',
     sessionId: '',
     thinking: [],
+    streamSummary: '',
     products: [],
     loading: true,
     errorMessage: '',
@@ -23,6 +24,10 @@ Page({
 
   onLoad() {
     this.loadProducts();
+  },
+
+  onUnload() {
+    this.clearStreamTimer();
   },
 
   loadProducts() {
@@ -57,7 +62,6 @@ Page({
     this.setData({
       prompt: text
     });
-    this.generate();
   },
 
   onInput(event) {
@@ -86,6 +90,7 @@ Page({
 
     this.setData({
       generating: true,
+      streamSummary: '',
       thinking: ['正在读取会员档案', '正在分析口味、预算和库存']
     });
 
@@ -107,15 +112,51 @@ Page({
           thinking: response.thinking || [],
           plans: plans.length ? plans : this.buildPlans(prompt),
           generating: false
-        });
+        }, () => this.playStreamText(this.buildStreamSummary(this.data.plans)));
       })
       .catch(() => {
+        const fallbackPlans = this.buildPlans(prompt);
         this.setData({
           thinking: ['后端 AI 暂不可用，已切换本地推荐规则', '仍按会员价、库存和口味生成组合'],
-          plans: this.buildPlans(prompt),
+          plans: fallbackPlans,
           generating: false
-        });
+        }, () => this.playStreamText(this.buildStreamSummary(fallbackPlans)));
       });
+  },
+
+  clearStreamTimer() {
+    if (this.streamTimer) {
+      clearInterval(this.streamTimer);
+      this.streamTimer = null;
+    }
+  },
+
+  buildStreamSummary(plans) {
+    if (!plans.length) {
+      return '';
+    }
+    const first = plans[0];
+    return `${first.name}已生成，共 ${first.items.length} 款餐品，预计 ¥${first.totalAmountText}。${first.reason}`;
+  },
+
+  playStreamText(fullText) {
+    this.clearStreamTimer();
+    if (!fullText) {
+      this.setData({
+        streamSummary: ''
+      });
+      return;
+    }
+    let index = 0;
+    this.streamTimer = setInterval(() => {
+      index += 1;
+      this.setData({
+        streamSummary: fullText.slice(0, index)
+      });
+      if (index >= fullText.length) {
+        this.clearStreamTimer();
+      }
+    }, 22);
   },
 
   normalizeAiPlans(plans) {

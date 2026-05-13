@@ -81,6 +81,14 @@ public class DeepSeekClient {
         return model;
     }
 
+    public boolean configured() {
+        return apiKey != null && !apiKey.isBlank();
+    }
+
+    public String provider() {
+        return "DeepSeek";
+    }
+
     private String curlChat(String payload, Exception cause) {
         try {
             String endpoint = baseUrl.replaceAll("/+$", "") + "/chat/completions";

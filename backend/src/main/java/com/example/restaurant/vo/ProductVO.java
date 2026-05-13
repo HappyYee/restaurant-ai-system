@@ -20,6 +20,7 @@ public class ProductVO {
     private String tasteTags;
     private String description;
     private String imageUrl;
+    private String imageAlt;
     private Integer cookTime;
 
     public static ProductVO from(Product product) {
@@ -36,6 +37,7 @@ public class ProductVO {
         vo.setTasteTags(product.getTasteTags());
         vo.setDescription(product.getDescription());
         vo.setImageUrl(product.getImageUrl());
+        vo.setImageAlt(product.getName());
         vo.setCookTime(product.getCookTime());
         return vo;
     }

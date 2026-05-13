@@ -1,5 +1,5 @@
 <view class="product-card" bindtap="openDetail">
-  <image wx:if="{{product.imageUrl}}" class="product-image" src="{{product.imageUrl}}" mode="aspectFill" />
+  <image wx:if="{{product.imageUrl && !imageFailed}}" class="product-image" src="{{product.imageUrl}}" mode="aspectFill" lazy-load binderror="onImageError" />
   <view wx:else class="product-image fallback-cover">
     <text>{{product.coverText}}</text>
   </view>
@@ -12,6 +12,9 @@
     <view class="tag-row">
       <text wx:for="{{product.tags}}" wx:key="*this" class="tag">{{item}}</text>
     </view>
+    <view wx:if="{{product.stockWarningText}}" class="stock-warning {{product.stock <= 0 ? 'empty' : ''}}">
+      <text>{{product.stockWarningText}}</text>
+    </view>
     <text class="product-desc">{{product.description}}</text>
     <view class="product-foot">
       <view class="price-box">
@@ -21,7 +24,7 @@
           <text class="origin-price">¥{{product.originalPriceText}}</text>
         </view>
       </view>
-      <view class="stepper" catchtap="stopTap">
+      <view class="stepper quantity-tools" catchtap="stopTap">
         <button wx:if="{{product.cartQuantity > 0}}" class="qty-btn" catchtap="minusProduct">−</button>
         <text wx:if="{{product.cartQuantity > 0}}" class="qty-text">{{product.cartQuantity}}</text>
         <button

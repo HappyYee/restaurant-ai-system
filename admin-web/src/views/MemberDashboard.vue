@@ -75,6 +75,13 @@ function money(value) {
   return Number(value || 0).toFixed(2)
 }
 
+function formatDateTime(value) {
+  if (!value) {
+    return '-'
+  }
+  return String(value).replace('T', ' ').slice(0, 16)
+}
+
 function levelTag(level) {
   if (level === '金卡会员') return 'warning'
   if (level === '银卡会员') return 'success'
@@ -192,7 +199,9 @@ onMounted(loadData)
             <span>{{ Number(row.nextLevelNeed || 0) === 0 ? '已达最高等级' : `还差 ¥${money(row.nextLevelNeed)}` }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="memberSince" label="入会时间" min-width="170" />
+        <el-table-column label="入会时间" min-width="170">
+          <template #default="{ row }">{{ formatDateTime(row.memberSince) }}</template>
+        </el-table-column>
       </el-table>
     </section>
   </div>

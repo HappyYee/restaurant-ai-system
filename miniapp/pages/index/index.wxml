@@ -11,19 +11,18 @@
     </view>
   </view>
 
-  <view class="quick-row">
-    <view class="quick-item">
-      <text class="quick-value">{{storeStats.fastCount}}</text>
-      <text class="quick-label">快手餐品</text>
-    </view>
-    <view class="quick-item">
-      <text class="quick-value">{{cartSummary.totalQuantity}}</text>
-      <text class="quick-label">已选餐品</text>
-    </view>
-    <view class="quick-item">
-      <text class="quick-value">{{cartSummary.totalAmountText}}</text>
-      <text class="quick-label">购物车金额</text>
-    </view>
+  <view class="stats-bar">
+    <text class="stats-bar__item">快手餐品 <text>{{storeStats.fastCount}}</text> 款</text>
+    <text class="stats-bar__divider">·</text>
+    <text class="stats-bar__item">已选 <text>{{cartSummary.totalQuantity}}</text> 件</text>
+    <text class="stats-bar__divider">·</text>
+    <text class="stats-bar__item">在售 <text>{{storeStats.productCount}}</text> 款</text>
+  </view>
+
+  <view class="search-bar">
+    <text class="search-icon">⌕</text>
+    <input class="search-input" placeholder="搜索菜品、口味、标签" value="{{keyword}}" bindinput="onSearchInput" />
+    <button wx:if="{{keyword}}" class="search-clear" bindtap="clearSearch">×</button>
   </view>
 
   <view wx:if="{{loading}}" class="empty">
@@ -39,7 +38,8 @@
 
   <view wx:elif="{{!viewProducts.length}}" class="empty">
     <view class="empty-mark">空</view>
-    <text>暂无可售菜品</text>
+    <text>{{keyword ? '没有找到匹配菜品' : '暂无可售菜品'}}</text>
+    <button wx:if="{{keyword}}" class="primary-btn retry-btn" bindtap="clearSearch">清空搜索</button>
   </view>
 
   <view wx:else class="menu-layout">
@@ -68,8 +68,12 @@
     </scroll-view>
   </view>
 
-  <view wx:if="{{cartSummary.totalQuantity}}" class="cart-bar active">
-    <view>
+  <view wx:if="{{cartSummary.totalQuantity}}" class="floating-cart active">
+    <view class="floating-cart__icon">
+      <text>购</text>
+      <text class="floating-cart__badge">{{cartSummary.totalQuantity}}</text>
+    </view>
+    <view class="floating-cart__main">
       <view class="cart-title">已选 {{cartSummary.totalQuantity}} 件</view>
       <view class="cart-price">¥{{cartSummary.totalAmountText}}</view>
     </view>

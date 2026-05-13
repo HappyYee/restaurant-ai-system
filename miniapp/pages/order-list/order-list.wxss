@@ -116,3 +116,90 @@
   width: 220rpx;
   margin-top: 12rpx;
 }
+
+.hot-section {
+  width: 100%;
+  margin-top: 34rpx;
+}
+
+.hot-title {
+  margin-bottom: 16rpx;
+  color: #111827;
+  font-size: 28rpx;
+  font-weight: 900;
+  text-align: left;
+}
+
+.hot-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.hot-row {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 2rpx 4rpx 8rpx;
+}
+
+.hot-card {
+  width: 214rpx;
+  padding: 14rpx;
+  border-radius: 18rpx;
+  background: #ffffff;
+  box-shadow: 0 10rpx 28rpx rgba(15, 23, 42, 0.08);
+  text-align: left;
+}
+
+.hot-image {
+  width: 186rpx;
+  height: 132rpx;
+  border-radius: 14rpx;
+  background: #eef2f1;
+  overflow: hidden;
+}
+
+.fallback-cover {
+  color: #0f766e;
+  font-size: 46rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e8f5f3, #d4ede9);
+}
+
+.hot-name {
+  margin-top: 12rpx;
+  color: #111827;
+  font-size: 24rpx;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hot-foot {
+  margin-top: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hot-foot text {
+  color: #f97316;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+.hot-foot button {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

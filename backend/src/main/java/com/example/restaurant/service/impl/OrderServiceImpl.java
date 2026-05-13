@@ -24,7 +24,9 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -129,6 +131,21 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
     }
 
     @Override
+    public Map<String, Object> getOrderStatus(Long userId, Long orderId) {
+        Orders order = getById(orderId);
+        if (order == null || !order.getUserId().equals(userId)) {
+            throw new BusinessException(404, "订单不存在");
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("id", order.getId());
+        result.put("orderNo", order.getOrderNo());
+        result.put("status", order.getStatus());
+        result.put("statusText", statusText(order.getStatus()));
+        result.put("updateTime", order.getUpdateTime());
+        return result;
+    }
+
+    @Override
     public void updateStatus(Long orderId, Integer status) {
         Orders order = getById(orderId);
         if (order == null) {
@@ -136,6 +153,15 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
         }
         order.setStatus(status);
         updateById(order);
+    }
+
+    private String statusText(Integer status) {
+        return switch (status == null ? 0 : status) {
+            case 1 -> "制作中";
+            case 2 -> "已完成";
+            case 3 -> "已取消";
+            default -> "待处理";
+        };
     }
 
     private OrderVO toVO(Orders order) {

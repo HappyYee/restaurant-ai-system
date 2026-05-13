@@ -15,9 +15,17 @@
     <button class="primary-btn" loading="{{generating}}" bindtap="generate">生成推荐</button>
   </view>
 
-  <view wx:if="{{thinking.length || generating}}" class="thinking-panel">
-    <text wx:if="{{generating}}">正在生成餐品组合</text>
+  <view wx:if="{{thinking.length || generating || streamSummary}}" class="thinking-panel">
+    <view wx:if="{{generating}}" class="ai-loading">
+      <view class="ai-loading__dots">
+        <text></text>
+        <text></text>
+        <text></text>
+      </view>
+      <view class="ai-loading__text">正在为你搭配最优方案</view>
+    </view>
     <text wx:for="{{thinking}}" wx:key="*this">{{item}}</text>
+    <view wx:if="{{streamSummary}}" class="stream-summary">{{streamSummary}}</view>
   </view>
 
   <scroll-view class="preset-scroll" scroll-x>

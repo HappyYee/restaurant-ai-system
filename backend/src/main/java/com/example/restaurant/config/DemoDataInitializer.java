@@ -56,21 +56,35 @@ public class DemoDataInitializer {
                 jdbcTemplate.update("""
                                 UPDATE product
                                 SET category = ?, price = ?, cost_price = ?, stock = ?, status = 1,
-                                    taste_tags = ?, description = ?, cook_time = ?, deleted = 0
+                                    taste_tags = ?, description = ?, image_url = ?, cook_time = ?, deleted = 0
                                 WHERE name = ?
                                 """,
                         product.category(), product.price(), product.costPrice(), product.stock(), product.tags(),
-                        product.description(), product.cookTime(), product.name());
+                        product.description(), dishImage(product.name()), product.cookTime(), product.name());
             } else {
                 jdbcTemplate.update("""
                                 INSERT INTO product
                                 (name, category, price, cost_price, stock, status, taste_tags, description, image_url, cook_time)
-                                VALUES (?, ?, ?, ?, ?, 1, ?, ?, '', ?)
+                                VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
                                 """,
                         product.name(), product.category(), product.price(), product.costPrice(), product.stock(),
-                        product.tags(), product.description(), product.cookTime());
+                        product.tags(), product.description(), dishImage(product.name()), product.cookTime());
             }
         }
+    }
+
+    private String dishImage(String name) {
+        return switch (name) {
+            case "番茄鸡蛋饭" -> "/assets/dishes/tomato-egg-rice.png";
+            case "牛肉饭" -> "/assets/dishes/beef-rice.png";
+            case "鸡腿饭" -> "/assets/dishes/chicken-leg-rice.png";
+            case "鸡胸肉轻食饭" -> "/assets/dishes/chicken-breast-rice.png";
+            case "柠檬茶" -> "/assets/dishes/lemon-tea.png";
+            case "无糖绿茶" -> "/assets/dishes/green-tea.png";
+            case "香辣鸡翅" -> "/assets/dishes/spicy-wings.png";
+            case "薯条" -> "/assets/dishes/fries.png";
+            default -> "";
+        };
     }
 
     private void seedStaff() {

@@ -8,6 +8,7 @@ Page({
     avatarText: 'HI',
     memberProfile: {},
     memberProgress: 0,
+    nextLevelName: '银卡会员',
     cartSummary: {
       totalQuantity: 0,
       totalAmountText: '0.00'
@@ -48,7 +49,8 @@ Page({
             totalSpentText: cartStore.toMoney(profile.totalSpent),
             nextLevelNeedText: cartStore.toMoney(profile.nextLevelNeed)
           },
-          memberProgress: this.calcMemberProgress(totalSpent, nextNeed)
+          memberProgress: this.calcMemberProgress(totalSpent, nextNeed),
+          nextLevelName: this.resolveNextLevel(profile.memberLevel)
         });
       })
       .catch((error) => {
@@ -79,6 +81,16 @@ Page({
       return 0;
     }
     return Math.max(0, Math.min(100, Math.round((spent / target) * 100)));
+  },
+
+  resolveNextLevel(level) {
+    if (level === '金卡会员') {
+      return '最高等级';
+    }
+    if (level === '银卡会员') {
+      return '金卡会员';
+    }
+    return '银卡会员';
   },
 
   login() {

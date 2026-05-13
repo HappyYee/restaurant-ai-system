@@ -10,6 +10,7 @@ Page({
     viewProducts: [],
     categories: [],
     activeCategory: '全部',
+    keyword: '',
     cartSummary: {
       totalQuantity: 0,
       totalAmountText: '0.00'
@@ -55,7 +56,9 @@ Page({
           cookTime: Number(product.cookTime || 0),
           cartQuantity: 0,
           coverText: product.name ? product.name.slice(0, 1) : '餐',
-          tags: (product.tasteTags || '').split(',').filter(Boolean)
+          imageAlt: product.name,
+          tags: (product.tasteTags || '').split(',').filter(Boolean),
+          stockWarningText: this.stockWarningText(Number(product.stock || 0))
         }));
 
         this.setData({
@@ -93,9 +96,19 @@ Page({
     this.setData({
       products,
       categories,
-      viewProducts: this.filterProducts(products, this.data.activeCategory),
+      viewProducts: this.filterProducts(products, this.data.activeCategory, this.data.keyword),
       cartSummary: cartStore.getCartSummary(currentCart)
     });
+  },
+
+  stockWarningText(stock) {
+    if (stock <= 0) {
+      return '已售罄';
+    }
+    if (stock <= 5) {
+      return `仅剩 ${stock} 份`;
+    }
+    return '';
   },
 
   buildCategories(products) {
@@ -118,18 +131,39 @@ Page({
     }));
   },
 
-  filterProducts(products, category) {
-    if (!category || category === '全部') {
-      return products;
-    }
-    return products.filter((product) => product.category === category);
+  filterProducts(products, category, keyword = '') {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+    return products.filter((product) => {
+      const matchCategory = !category || category === '全部' || product.category === category;
+      const matchKeyword =
+        !normalizedKeyword ||
+        product.name.toLowerCase().includes(normalizedKeyword) ||
+        (product.tasteTags || '').toLowerCase().includes(normalizedKeyword) ||
+        (product.description || '').toLowerCase().includes(normalizedKeyword);
+      return matchCategory && matchKeyword;
+    });
   },
 
   setCategory(event) {
     const category = event.currentTarget.dataset.category;
     this.setData({
       activeCategory: category,
-      viewProducts: this.filterProducts(this.data.products, category)
+      viewProducts: this.filterProducts(this.data.products, category, this.data.keyword)
+    });
+  },
+
+  onSearchInput(event) {
+    const keyword = event.detail.value || '';
+    this.setData({
+      keyword,
+      viewProducts: this.filterProducts(this.data.products, this.data.activeCategory, keyword)
+    });
+  },
+
+  clearSearch() {
+    this.setData({
+      keyword: '',
+      viewProducts: this.filterProducts(this.data.products, this.data.activeCategory, '')
     });
   },
 

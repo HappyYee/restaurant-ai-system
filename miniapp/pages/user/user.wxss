@@ -75,7 +75,7 @@
 }
 
 .member-head,
-.member-foot {
+.member-progress-labels {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -89,7 +89,7 @@
 }
 
 .member-subtitle,
-.member-foot {
+.member-progress-labels {
   margin-top: 8rpx;
   color: #64748b;
   font-size: 23rpx;
@@ -106,17 +106,27 @@
 }
 
 .progress-track {
-  height: 16rpx;
+  height: 14rpx;
   margin-top: 24rpx;
   border-radius: 999rpx;
-  background: #e2e8f0;
+  background: #e8e8e8;
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
   border-radius: inherit;
-  background: #0f766e;
+  background: linear-gradient(90deg, #0f766e, #2db89e);
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.member-progress-labels {
+  margin-top: 12rpx;
+  align-items: flex-start;
+}
+
+.member-progress-labels text:last-child {
+  text-align: right;
 }
 
 .stat-card {

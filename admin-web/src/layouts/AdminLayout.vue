@@ -1,7 +1,8 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { fetchAiStatus } from '../api/admin'
 import {
   Bowl,
   DataAnalysis,
@@ -18,9 +19,17 @@ import {
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const aiStatus = ref({
+  provider: 'DeepSeek',
+  model: 'deepseek-v4-pro',
+  configured: false,
+})
 
 const activeMenu = computed(() => route.path)
 const pageTitle = computed(() => route.meta.title || '管理后台')
+const aiStatusText = computed(() =>
+  aiStatus.value.configured ? `${aiStatus.value.provider || 'DeepSeek'} ${aiStatus.value.model || '模型'} 已配置` : 'AI 接口待配置'
+)
 const todayText = new Intl.DateTimeFormat('zh-CN', {
   month: '2-digit',
   day: '2-digit',
@@ -42,6 +51,24 @@ function logout() {
   authStore.logout()
   router.push('/login')
 }
+
+onMounted(async () => {
+  aiStatus.value = await fetchAiStatus()
+})
+
+watch(
+  () => authStore.isLoggedIn,
+  (isLoggedIn) => {
+    if (!isLoggedIn) {
+      router.push({
+        name: 'login',
+        query: {
+          redirect: route.fullPath,
+        },
+      })
+    }
+  }
+)
 </script>
 
 <template>
@@ -72,9 +99,9 @@ function logout() {
           <h1>{{ pageTitle }}</h1>
         </div>
         <div class="header-actions">
-          <div class="header-status">
+          <div class="header-status" :class="{ ready: aiStatus.configured }">
             <i />
-            <span>DeepSeek V4 Pro 在线</span>
+            <span>{{ aiStatusText }}</span>
           </div>
           <span class="header-date">{{ todayText }}</span>
           <span class="admin-name">{{ authStore.user?.nickname || '管理员' }}</span>

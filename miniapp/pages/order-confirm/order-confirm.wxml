@@ -15,13 +15,13 @@
         </view>
         <view class="item-main">
           <view class="item-name">{{item.name}}</view>
-          <view class="item-meta">{{item.category}} · {{item.memberDiscountLabel || '会员价'}} · 库存 {{item.stock}}</view>
+          <view class="item-meta">{{item.category}} · {{item.memberDiscountLabel || '会员价'}}</view>
           <view class="item-foot">
             <view>
               <text class="price">¥{{item.subtotalText}}</text>
               <text class="origin-price">原价 ¥{{item.originalSubtotalText}}</text>
             </view>
-            <view class="stepper">
+            <view class="stepper quantity-tools">
               <button class="qty-btn" data-id="{{item.id}}" bindtap="decrease">−</button>
               <text class="qty-text">{{item.quantity}}</text>
               <button class="qty-btn add" data-id="{{item.id}}" bindtap="increase">+</button>

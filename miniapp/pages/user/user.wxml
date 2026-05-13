@@ -21,9 +21,9 @@
     <view class="progress-track">
       <view class="progress-bar" style="width: {{memberProgress}}%;"></view>
     </view>
-    <view class="member-foot">
+    <view class="member-progress-labels">
       <text>累计消费 ¥{{memberProfile.totalSpentText || '0.00'}}</text>
-      <text>{{memberProfile.nextLevelNeed == 0 ? '已达最高等级' : '距下级还差 ¥' + (memberProfile.nextLevelNeedText || '0.00')}}</text>
+      <text>{{memberProfile.nextLevelNeed == 0 ? '已达最高等级' : '距' + nextLevelName + '还差 ¥' + (memberProfile.nextLevelNeedText || '0.00')}}</text>
     </view>
   </view>
 

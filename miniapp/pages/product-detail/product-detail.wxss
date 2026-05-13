@@ -7,6 +7,7 @@
   height: 420rpx;
   border-radius: 22rpx;
   overflow: hidden;
+  background: #eef2f1;
 }
 
 .detail-cover {
@@ -56,14 +57,15 @@
 }
 
 .member-badge {
-  display: inline-flex;
+  display: inline-block;
   margin-bottom: 8rpx;
-  padding: 5rpx 10rpx;
-  border-radius: 8rpx;
-  background: #fff7ed;
-  color: #f97316;
+  padding-left: 10rpx;
+  border-left: 6rpx solid #f97316;
+  background: transparent;
+  color: #c2410c;
   font-size: 22rpx;
   font-weight: 800;
+  line-height: 1.2;
 }
 
 .origin-price {
@@ -106,7 +108,6 @@
   line-height: 1.65;
 }
 
-.stock-row,
 .quantity-row {
   min-height: 96rpx;
   margin-top: 20rpx;
@@ -118,45 +119,68 @@
   color: #374151;
 }
 
-.stock-row text:last-child {
+.stock-warning {
+  margin-top: 22rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 16rpx;
+  background: #fff7ed;
+  color: #e8692a;
+  font-size: 24rpx;
   font-weight: 800;
-  color: #0f766e;
 }
 
-.stepper {
+.stock-warning.empty {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.quantity-tools {
   display: flex;
   align-items: center;
-  gap: 18rpx;
+  gap: 10rpx;
 }
 
 .qty-btn {
-  width: 58rpx;
-  height: 58rpx;
-  border-radius: 50%;
-  background: #e2e8f0;
-  color: #0f172a;
+  width: 66rpx;
+  height: 66rpx;
+  border-radius: 14rpx;
+  border: 2rpx solid #dbe3ea;
+  background: #ffffff;
+  color: #334155;
   font-size: 36rpx;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 6rpx 14rpx rgba(15, 23, 42, 0.06);
 }
 
 .qty-btn.add {
+  border-color: #0f766e;
   background: #0f766e;
   color: #ffffff;
+  box-shadow: 0 8rpx 18rpx rgba(15, 118, 110, 0.24);
 }
 
 .qty-btn[disabled] {
-  background: #cbd5e1;
-  color: #94a3b8;
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: #cbd5e1;
+  box-shadow: none;
 }
 
 .qty-text {
-  min-width: 44rpx;
+  min-width: 72rpx;
+  height: 64rpx;
+  padding: 0 8rpx;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 12rpx;
+  background: #f8fafc;
   text-align: center;
+  color: #0f172a;
   font-size: 30rpx;
   font-weight: 900;
+  line-height: 64rpx;
 }
 
 .bottom-actions {
@@ -165,10 +189,22 @@
   right: 24rpx;
   bottom: calc(24rpx + env(safe-area-inset-bottom));
   display: grid;
-  grid-template-columns: 1fr 1.35fr;
+  grid-template-columns: 1fr 1.6fr;
   gap: 18rpx;
   padding: 18rpx;
   border-radius: 22rpx;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 18rpx 45rpx rgba(15, 23, 42, 0.16);
+}
+
+.bottom-actions .ghost-btn {
+  border: 2rpx solid #0f766e;
+  color: #0f766e;
+  background: #ffffff;
+}
+
+.bottom-actions .primary-btn {
+  border-radius: 18rpx;
+  background: #0f766e;
+  box-shadow: 0 10rpx 24rpx rgba(15, 118, 110, 0.28);
 }

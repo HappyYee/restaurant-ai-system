@@ -85,35 +85,47 @@
   text-decoration: line-through;
 }
 
-.stepper {
+.stepper,
+.quantity-tools {
   display: flex;
   align-items: center;
-  gap: 14rpx;
+  gap: 8rpx;
 }
 
 .qty-btn {
-  width: 52rpx;
-  height: 52rpx;
-  border-radius: 50%;
-  background: #e2e8f0;
-  color: #0f172a;
-  font-size: 34rpx;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 10rpx;
+  border: 2rpx solid #dbe3ea;
+  background: #ffffff;
+  color: #334155;
+  font-size: 30rpx;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.06);
 }
 
 .qty-btn.add {
+  border-color: #0f766e;
   background: #0f766e;
   color: #ffffff;
+  box-shadow: 0 6rpx 14rpx rgba(15, 118, 110, 0.22);
 }
 
 .qty-text {
-  min-width: 36rpx;
+  min-width: 44rpx;
+  height: 44rpx;
+  padding: 0 6rpx;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 8rpx;
+  background: #f8fafc;
   text-align: center;
-  font-size: 28rpx;
+  color: #0f172a;
+  font-size: 24rpx;
   font-weight: 900;
+  line-height: 44rpx;
 }
 
 .pickup-card {

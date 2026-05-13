@@ -1,6 +1,9 @@
 const API_BASE_URL_STORAGE_KEY = 'restaurant_api_base_url';
+const LOCAL_NETWORK_BASE_URL = 'http://10.156.217.62:8080/api';
+const FALLBACK_NETWORK_BASE_URL = 'http://192.168.1.3:8080/api';
+const LOCALHOST_BASE_URL = 'http://127.0.0.1:8080/api';
 const ENV_BASE_URLS = {
-  develop: 'http://127.0.0.1:8080/api',
+  develop: LOCAL_NETWORK_BASE_URL,
   trial: 'https://your-domain.example.com/api',
   release: 'https://your-domain.example.com/api'
 };
@@ -17,20 +20,43 @@ function normalizeBaseUrl(value) {
   return String(value || '').trim().replace(/\/+$/, '');
 }
 
+function isLoopbackUrl(value) {
+  return /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/|$)/i.test(value);
+}
+
+function uniqueUrls(urls) {
+  return urls.map(normalizeBaseUrl).filter(Boolean).filter((url, index, list) => list.indexOf(url) === index);
+}
+
 function getBaseUrl() {
+  return getBaseUrls()[0];
+}
+
+function getBaseUrls() {
+  const envVersion = getEnvVersion();
+  const envBaseUrl = ENV_BASE_URLS[envVersion] || ENV_BASE_URLS.develop;
   const customBaseUrl = normalizeBaseUrl(wx.getStorageSync(API_BASE_URL_STORAGE_KEY));
+  const urls = [];
   if (customBaseUrl) {
-    return customBaseUrl;
+    urls.push(customBaseUrl);
   }
-  return ENV_BASE_URLS[getEnvVersion()] || ENV_BASE_URLS.develop;
+  urls.push(envBaseUrl);
+  if (envVersion === 'develop') {
+    urls.push(LOCAL_NETWORK_BASE_URL, FALLBACK_NETWORK_BASE_URL, LOCALHOST_BASE_URL);
+  }
+  return uniqueUrls(urls);
 }
 
 const config = {
   get baseUrl() {
     return getBaseUrl();
   },
+  get baseUrls() {
+    return getBaseUrls();
+  },
   apiBaseUrlStorageKey: API_BASE_URL_STORAGE_KEY,
   envBaseUrls: ENV_BASE_URLS,
+  isLoopbackUrl,
   setBaseUrl(value) {
     const nextValue = normalizeBaseUrl(value);
     if (nextValue) {

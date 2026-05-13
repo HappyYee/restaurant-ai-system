@@ -14,10 +14,11 @@
   height: 150rpx;
   border-radius: 14rpx;
   overflow: hidden;
+  background: #eef2f1;
 }
 
 .fallback-cover {
-  background: linear-gradient(135deg, #ecfeff, #fff7ed);
+  background: linear-gradient(135deg, #e8f5f3, #d4ede9);
   color: #0f766e;
   display: flex;
   align-items: center;
@@ -69,6 +70,22 @@
   font-size: 20rpx;
 }
 
+.stock-warning {
+  display: inline-flex;
+  margin-top: 8rpx;
+  padding: 5rpx 10rpx;
+  border-radius: 999rpx;
+  background: #fff7ed;
+  color: #e8692a;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.stock-warning.empty {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
 .product-desc {
   height: 34rpx;
   margin-top: 8rpx;
@@ -94,12 +111,14 @@
 }
 
 .member-badge {
-  padding: 4rpx 8rpx;
-  border-radius: 8rpx;
-  background: #fff7ed;
-  color: #f97316;
-  font-size: 19rpx;
+  padding-left: 8rpx;
+  border-left: 5rpx solid #f97316;
+  background: transparent;
+  color: #c2410c;
+  font-size: 20rpx;
   font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .price {
@@ -114,37 +133,52 @@
   text-decoration: line-through;
 }
 
-.stepper {
+.stepper,
+.quantity-tools {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 8rpx;
 }
 
 .qty-btn {
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 50%;
-  background: #e2e8f0;
-  color: #0f172a;
-  font-size: 34rpx;
+  width: 46rpx;
+  height: 46rpx;
+  border-radius: 10rpx;
+  border: 2rpx solid #dbe3ea;
+  background: #ffffff;
+  color: #334155;
+  font-size: 30rpx;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(15, 23, 42, 0.06);
 }
 
 .qty-btn.add {
+  border-color: #0f766e;
   background: #0f766e;
   color: #ffffff;
+  box-shadow: 0 6rpx 14rpx rgba(15, 118, 110, 0.22);
 }
 
 .qty-btn[disabled] {
-  background: #cbd5e1;
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: #cbd5e1;
+  box-shadow: none;
 }
 
 .qty-text {
-  min-width: 32rpx;
+  min-width: 42rpx;
+  height: 42rpx;
+  padding: 0 6rpx;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 8rpx;
+  background: #f8fafc;
   text-align: center;
-  font-size: 26rpx;
+  color: #0f172a;
+  font-size: 24rpx;
   font-weight: 800;
+  line-height: 42rpx;
 }

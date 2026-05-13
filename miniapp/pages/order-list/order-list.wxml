@@ -22,6 +22,22 @@
     <view class="empty-mark">空</view>
     <text>还没有订单</text>
     <button class="primary-btn empty-btn" bindtap="goMenu">去点餐</button>
+    <view wx:if="{{hotProducts.length}}" class="hot-section">
+      <view class="hot-title">热门菜品</view>
+      <scroll-view scroll-x class="hot-scroll">
+        <view class="hot-row">
+          <view wx:for="{{hotProducts}}" wx:key="id" class="hot-card" data-id="{{item.id}}" bindtap="goProduct">
+            <image wx:if="{{item.imageUrl}}" class="hot-image" src="{{item.imageUrl}}" mode="aspectFill" lazy-load />
+            <view wx:else class="hot-image fallback-cover">{{item.coverText}}</view>
+            <view class="hot-name">{{item.name}}</view>
+            <view class="hot-foot">
+              <text>¥{{item.priceText}}</text>
+              <button catchtap="addHotProduct" data-id="{{item.id}}">+</button>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
   </view>
 
   <view wx:else class="order-list">

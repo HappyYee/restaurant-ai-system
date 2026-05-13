@@ -1,7 +1,8 @@
 const { login } = require('../../utils/auth');
 const { request } = require('../../utils/request');
 const config = require('../../utils/config');
-const { toMoney } = require('../../utils/cart');
+const cartStore = require('../../utils/cart');
+const { toMoney } = cartStore;
 
 const statusMap = {
   0: {
@@ -26,11 +27,13 @@ Page({
   data: {
     loading: true,
     errorMessage: '',
-    orders: []
+    orders: [],
+    hotProducts: []
   },
 
   onShow() {
     this.loadOrders();
+    this.loadHotProducts();
   },
 
   onPullDownRefresh() {
@@ -38,6 +41,45 @@ Page({
       () => wx.stopPullDownRefresh(),
       () => wx.stopPullDownRefresh()
     );
+  },
+
+  loadHotProducts() {
+    return request({
+      url: '/products/hot?limit=5'
+    })
+      .then((products = []) => {
+        this.setData({
+          hotProducts: products.map((product) => ({
+            ...product,
+            price: Number(product.memberPrice || product.price || 0),
+            priceText: toMoney(product.memberPrice || product.price),
+            coverText: product.name ? product.name.slice(0, 1) : '餐'
+          }))
+        });
+      })
+      .catch((error) => {
+        console.error('load hot products failed:', error);
+      });
+  },
+
+  addHotProduct(event) {
+    const id = Number(event.currentTarget.dataset.id);
+    const product = this.data.hotProducts.find((item) => item.id === id);
+    if (!product) {
+      return;
+    }
+    cartStore.addToCart(product, 1);
+    wx.showToast({
+      title: '已加入购物车',
+      icon: 'success'
+    });
+  },
+
+  goProduct(event) {
+    const id = event.currentTarget.dataset.id;
+    wx.navigateTo({
+      url: `/pages/product-detail/product-detail?id=${id}`
+    });
   },
 
   loadOrders() {

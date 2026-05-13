@@ -7,7 +7,8 @@ Page({
     product: null,
     tags: [],
     quantity: 1,
-    cartQuantity: 0
+    cartQuantity: 0,
+    imageFailed: false
   },
 
   onLoad(options) {
@@ -34,7 +35,8 @@ Page({
             priceText: cartStore.toMoney(product.memberPrice || product.price),
             originalPriceText: cartStore.toMoney(product.price),
             stock: Number(product.stock || 0),
-            coverText: product.name ? product.name.slice(0, 1) : '餐'
+            coverText: product.name ? product.name.slice(0, 1) : '餐',
+            stockWarningText: this.stockWarningText(Number(product.stock || 0))
           },
           tags: (product.tasteTags || '').split(',').filter(Boolean)
         });
@@ -45,6 +47,22 @@ Page({
           loading: false
         });
       });
+  },
+
+  onImageError() {
+    this.setData({
+      imageFailed: true
+    });
+  },
+
+  stockWarningText(stock) {
+    if (stock <= 0) {
+      return '已售罄';
+    }
+    if (stock <= 5) {
+      return `仅剩 ${stock} 份，手慢无`;
+    }
+    return '';
   },
 
   syncCartQuantity() {
@@ -118,7 +136,7 @@ Page({
 
   goConfirm() {
     const added = this.addToCart();
-    if (!added && !cartStore.getCartSummary().totalQuantity) {
+    if (!added) {
       return;
     }
 

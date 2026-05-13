@@ -26,6 +26,7 @@ function clearAdminSession() {
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(USER_KEY)
   localStorage.removeItem(TOKEN_EXPIRES_AT_KEY)
+  window.dispatchEvent(new Event('restaurant-admin-auth-expired'))
 }
 
 function getAdminToken() {
@@ -819,6 +820,18 @@ export async function fetchAiAnalysis() {
       },
     ],
     suggestions: ['把热销主食与饮品组合成午餐套餐', '对库存低于 10 的菜品设置预警', '根据午晚高峰订单量调整兼职排班', '跟踪食材成本率，优先优化毛利偏低菜品'],
+  }
+}
+
+export async function fetchAiStatus() {
+  const backendResult = await tryBackend('/admin/ai/status')
+  if (backendResult) {
+    return backendResult
+  }
+  return {
+    provider: 'DeepSeek',
+    model: 'deepseek-v4-pro',
+    configured: false,
   }
 }
 
