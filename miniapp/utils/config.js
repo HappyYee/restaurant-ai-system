@@ -1,10 +1,11 @@
 const API_BASE_URL_STORAGE_KEY = 'restaurant_api_base_url';
+const SERVER_BASE_URL = 'https://api.yee.earth/api';
 const LOCALHOST_BASE_URL = 'http://127.0.0.1:8080/api';
 const LOCALHOST_NAME_BASE_URL = 'http://localhost:8080/api';
 const ENV_BASE_URLS = {
-  develop: LOCALHOST_BASE_URL,
-  trial: 'https://your-domain.example.com/api',
-  release: 'https://your-domain.example.com/api'
+  develop: SERVER_BASE_URL,
+  trial: SERVER_BASE_URL,
+  release: SERVER_BASE_URL
 };
 
 function getEnvVersion() {
@@ -54,6 +55,7 @@ const config = {
     return getBaseUrls();
   },
   apiBaseUrlStorageKey: API_BASE_URL_STORAGE_KEY,
+  serverBaseUrl: SERVER_BASE_URL,
   envBaseUrls: ENV_BASE_URLS,
   isLoopbackUrl,
   setBaseUrl(value) {

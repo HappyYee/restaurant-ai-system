@@ -12,6 +12,8 @@
 .env
 .env.*
 !.env.example
+!.env.production.example
+!admin-web/.env.production.example
 application-local.yml
 scripts/windows/env.demo.ps1
 

@@ -46,6 +46,12 @@ public class AdminProductController {
         return Result.success();
     }
 
+    @PatchMapping("/{id}/stock")
+    public Result<Void> updateStock(@PathVariable Long id, @RequestParam Integer stock) {
+        productService.updateStock(id, stock);
+        return Result.success();
+    }
+
     @DeleteMapping("/{id}")
     public Result<Void> deleteProduct(@PathVariable Long id) {
         productService.removeById(id);

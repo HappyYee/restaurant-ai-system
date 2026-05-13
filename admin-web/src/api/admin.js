@@ -17,7 +17,9 @@ const MEMBER_KEY = 'restaurant_mock_members_v1'
 const TOKEN_KEY = 'restaurant_admin_token'
 const USER_KEY = 'restaurant_admin_user'
 const TOKEN_EXPIRES_AT_KEY = 'restaurant_admin_token_expires_at'
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080/api'
+const DEFAULT_API_BASE_URL = import.meta.env.PROD ? 'https://api.yee.earth/api' : 'http://127.0.0.1:8080/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL
+const ENABLE_MOCK_FALLBACK = String(import.meta.env.VITE_ENABLE_MOCK_FALLBACK ?? (!import.meta.env.PROD)).toLowerCase() === 'true'
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const sleep = (ms = 180) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -72,8 +74,28 @@ async function tryBackend(path, options) {
   try {
     return await backendRequest(path, options)
   } catch (error) {
+    if (!ENABLE_MOCK_FALLBACK) {
+      throw error
+    }
     console.warn('[admin-api] fallback to local mock:', path, error.message)
     return null
+  }
+}
+
+function queryString(params = {}) {
+  const searchParams = new URLSearchParams()
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.set(key, value)
+    }
+  })
+  const query = searchParams.toString()
+  return query ? `?${query}` : ''
+}
+
+function requireMockFallback(feature) {
+  if (!ENABLE_MOCK_FALLBACK) {
+    throw new Error(`${feature} 后端接口不可用，生产环境已禁用本地 mock fallback`)
   }
 }
 
@@ -382,6 +404,7 @@ export async function login({ username, password }) {
       },
     }
   }
+  requireMockFallback('管理员登录')
   await sleep()
   if (username === 'admin' && password === '123456') {
     return {
@@ -401,6 +424,7 @@ export async function fetchMembers(params = {}) {
   if (backendResult) {
     return backendResult
   }
+  requireMockFallback('会员列表')
   await sleep()
   const keyword = params.keyword?.trim().toLowerCase()
   return getMembers().filter((member) => {
@@ -419,6 +443,7 @@ export async function fetchMemberStats() {
   if (backendResult) {
     return backendResult
   }
+  requireMockFallback('会员统计')
   await sleep()
   const members = getMembers()
   const levelDistribution = members.reduce((map, member) => {
@@ -437,6 +462,11 @@ export async function fetchMemberStats() {
 }
 
 export async function fetchProducts(params = {}) {
+  const backendResult = await tryBackend(`/admin/products${queryString(params)}`)
+  if (backendResult) {
+    return backendResult
+  }
+  requireMockFallback('菜品管理')
   await sleep()
   const keyword = params.keyword?.trim().toLowerCase()
   const list = getProducts().filter((item) => {
@@ -453,6 +483,15 @@ export async function fetchProducts(params = {}) {
 }
 
 export async function saveProduct(payload) {
+  const backendPayload = { ...payload }
+  const backendResult = await tryBackend(payload.id ? `/admin/products/${payload.id}` : '/admin/products', {
+    method: payload.id ? 'PUT' : 'POST',
+    body: backendPayload,
+  })
+  if (backendResult) {
+    return backendResult
+  }
+  requireMockFallback('菜品保存')
   await sleep()
   const products = getProducts()
   if (payload.id) {
@@ -475,6 +514,18 @@ export async function saveProduct(payload) {
 }
 
 export async function removeProduct(id) {
+  try {
+    await backendRequest(`/admin/products/${id}`, {
+      method: 'DELETE',
+    })
+    return true
+  } catch (error) {
+    if (!ENABLE_MOCK_FALLBACK) {
+      throw error
+    }
+    console.warn('[admin-api] fallback to local mock:', `/admin/products/${id}`, error.message)
+  }
+  requireMockFallback('菜品删除')
   await sleep()
   write(
     PRODUCT_KEY,
@@ -484,6 +535,18 @@ export async function removeProduct(id) {
 }
 
 export async function updateProductStatus(id, status) {
+  try {
+    await backendRequest(`/admin/products/${id}/status?status=${status}`, {
+      method: 'PATCH',
+    })
+    return true
+  } catch (error) {
+    if (!ENABLE_MOCK_FALLBACK) {
+      throw error
+    }
+    console.warn('[admin-api] fallback to local mock:', `/admin/products/${id}/status`, error.message)
+  }
+  requireMockFallback('菜品状态更新')
   await sleep()
   const products = getProducts().map((item) => (item.id === id ? { ...item, status } : item))
   write(PRODUCT_KEY, products)
@@ -491,6 +554,18 @@ export async function updateProductStatus(id, status) {
 }
 
 export async function updateProductStock(id, stock) {
+  try {
+    await backendRequest(`/admin/products/${id}/stock?stock=${stock}`, {
+      method: 'PATCH',
+    })
+    return true
+  } catch (error) {
+    if (!ENABLE_MOCK_FALLBACK) {
+      throw error
+    }
+    console.warn('[admin-api] fallback to local mock:', `/admin/products/${id}/stock`, error.message)
+  }
+  requireMockFallback('库存更新')
   await sleep()
   const products = getProducts().map((item) => (item.id === id ? { ...item, stock } : item))
   write(PRODUCT_KEY, products)
@@ -498,6 +573,11 @@ export async function updateProductStock(id, stock) {
 }
 
 export async function fetchOrders(params = {}) {
+  const backendResult = await tryBackend(`/admin/orders${queryString(params)}`)
+  if (backendResult) {
+    return backendResult
+  }
+  requireMockFallback('订单管理')
   await sleep()
   const keyword = params.keyword?.trim().toLowerCase()
   return getOrders().filter((item) => {
@@ -513,6 +593,19 @@ export async function fetchOrders(params = {}) {
 }
 
 export async function updateOrderStatus(id, status) {
+  try {
+    await backendRequest(`/admin/orders/${id}/status`, {
+      method: 'PATCH',
+      body: { status },
+    })
+    return true
+  } catch (error) {
+    if (!ENABLE_MOCK_FALLBACK) {
+      throw error
+    }
+    console.warn('[admin-api] fallback to local mock:', `/admin/orders/${id}/status`, error.message)
+  }
+  requireMockFallback('订单状态更新')
   await sleep()
   const orders = getOrders().map((item) => (item.id === id ? { ...item, status } : item))
   write(ORDER_KEY, orders)
@@ -520,6 +613,11 @@ export async function updateOrderStatus(id, status) {
 }
 
 export async function fetchStaff(params = {}) {
+  const backendResult = await tryBackend(`/admin/staff${queryString(params)}`)
+  if (backendResult) {
+    return backendResult
+  }
+  requireMockFallback('人员管理')
   await sleep()
   const keyword = params.keyword?.trim().toLowerCase()
   return getStaff().filter((item) => {
@@ -536,6 +634,14 @@ export async function fetchStaff(params = {}) {
 }
 
 export async function saveStaff(payload) {
+  const backendResult = await tryBackend(payload.id ? `/admin/staff/${payload.id}` : '/admin/staff', {
+    method: payload.id ? 'PUT' : 'POST',
+    body: payload,
+  })
+  if (backendResult) {
+    return backendResult
+  }
+  requireMockFallback('人员保存')
   await sleep()
   const staff = getStaff()
   const normalized = {
@@ -560,6 +666,18 @@ export async function saveStaff(payload) {
 }
 
 export async function removeStaff(id) {
+  try {
+    await backendRequest(`/admin/staff/${id}`, {
+      method: 'DELETE',
+    })
+    return true
+  } catch (error) {
+    if (!ENABLE_MOCK_FALLBACK) {
+      throw error
+    }
+    console.warn('[admin-api] fallback to local mock:', `/admin/staff/${id}`, error.message)
+  }
+  requireMockFallback('人员删除')
   await sleep()
   write(
     STAFF_KEY,
@@ -569,6 +687,18 @@ export async function removeStaff(id) {
 }
 
 export async function updateStaffStatus(id, status) {
+  try {
+    await backendRequest(`/admin/staff/${id}/status?status=${status}`, {
+      method: 'PATCH',
+    })
+    return true
+  } catch (error) {
+    if (!ENABLE_MOCK_FALLBACK) {
+      throw error
+    }
+    console.warn('[admin-api] fallback to local mock:', `/admin/staff/${id}/status`, error.message)
+  }
+  requireMockFallback('人员状态更新')
   await sleep()
   const staff = getStaff().map((item) => (item.id === id ? { ...item, status } : item))
   write(STAFF_KEY, staff)
@@ -580,6 +710,7 @@ export async function fetchDashboardStats() {
   if (backendResult) {
     return backendResult
   }
+  requireMockFallback('经营看板')
   await sleep()
   const products = getProducts()
   const orders = getOrders()
@@ -724,6 +855,18 @@ export async function fetchDashboardStats() {
 }
 
 export async function fetchFinanceOverview(params = {}) {
+  const backendResult = await tryBackend(
+    `/admin/finance/overview${queryString({
+      year: params.year,
+      monthStart: params.monthRange?.[0],
+      monthEnd: params.monthRange?.[1],
+      revenueType: params.revenueType,
+    })}`,
+  )
+  if (backendResult) {
+    return backendResult
+  }
+  requireMockFallback('财务看板')
   await sleep()
   const allRecords = getFinanceRecords().sort((a, b) => a.month.localeCompare(b.month))
   const revenueType = params.revenueType || 'all'
@@ -828,6 +971,7 @@ export async function fetchAiStatus() {
   if (backendResult) {
     return backendResult
   }
+  requireMockFallback('AI 状态')
   return {
     provider: 'DeepSeek',
     model: 'deepseek-v4-pro',
@@ -850,6 +994,9 @@ export async function chatBusinessAi({ message, sessionId }) {
       error.status === 401
         ? '当前后台是离线登录或 token 已失效，请在后端启动后退出并重新登录'
         : error.message || fallbackReason
+    if (!ENABLE_MOCK_FALLBACK) {
+      throw error
+    }
     console.warn('[admin-api] business AI fallback:', fallbackReason)
   }
   const stats = await fetchDashboardStats()

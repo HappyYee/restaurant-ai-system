@@ -23,4 +23,6 @@ public interface ProductService extends IService<Product> {
     ProductVO updateProduct(Long id, ProductSaveRequest request);
 
     void updateStatus(Long id, Integer status);
+
+    void updateStock(Long id, Integer stock);
 }

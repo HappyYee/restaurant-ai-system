@@ -22,7 +22,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
 
         String path = request.getRequestURI();
-        if (path.startsWith("/api/admin/auth/login") || path.startsWith("/api/auth/wx-login")
+        if (path.startsWith("/api/health") || path.startsWith("/api/admin/auth/login") || path.startsWith("/api/auth/wx-login")
                 || path.startsWith("/api/products") || path.startsWith("/api/dishes")) {
             return true;
         }

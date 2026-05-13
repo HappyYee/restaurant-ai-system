@@ -136,6 +136,16 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         updateById(product);
     }
 
+    @Override
+    public void updateStock(Long id, Integer stock) {
+        Product product = getById(id);
+        if (product == null) {
+            throw new BusinessException("菜品不存在");
+        }
+        product.setStock(Math.max(0, stock == null ? 0 : stock));
+        updateById(product);
+    }
+
     private Product toEntity(Product product, ProductSaveRequest request) {
         product.setName(request.getName());
         product.setCategory(request.getCategory());

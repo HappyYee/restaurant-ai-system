@@ -20,21 +20,33 @@
 
 ## 后端接口
 
-默认请求地址在 `utils/config.js`。开发版优先访问开发者工具所在电脑的 localhost 地址：
+默认请求地址在 `utils/config.js`。答辩演示和线上预览默认请求服务器 API：
 
 ```js
-developCandidates: ['http://127.0.0.1:8080/api', 'http://localhost:8080/api']
-trial: 'https://your-domain.example.com/api'
-release: 'https://your-domain.example.com/api'
+const SERVER_BASE_URL = 'https://api.yee.earth/api'
+develop: SERVER_BASE_URL
+trial: SERVER_BASE_URL
+release: SERVER_BASE_URL
 ```
 
-真机调试时，手机无法访问电脑的 `127.0.0.1`，需要在微信开发者工具 Storage 中写入电脑局域网 IP：
+本地联调仍保留 localhost 作为备用候选地址。需要临时切换 API 时，可以在微信开发者工具 Storage 中写入：
 
 ```js
 restaurant_api_base_url = 'http://你的电脑局域网IP:8080/api'
 ```
 
-这样不会把开发机 IP 打进代码包。正式版需要把 `release` 改成已备案并配置到微信后台的 HTTPS 域名。
+如果不写 Storage，默认就会访问 `https://api.yee.earth/api`。
+
+## 答辩预览测试流程
+
+1. 打开微信开发者工具。
+2. 导入 `miniapp` 目录。
+3. 勾选“不校验合法域名、web-view、TLS版本以及HTTPS证书”。
+4. 点击“编译”。
+5. 点击“预览”。
+6. 手机扫码打开。
+7. 检查小程序请求的后端地址是 `https://api.yee.earth/api`。
+8. 在管理后台修改菜品或库存后，重新进入小程序确认看到同一套服务器数据库数据。
 
 本地联调前需要先启动 Spring Boot 后端，并导入 `database/schema.sql` 和 `database/init_data.sql`。
 
@@ -63,7 +75,7 @@ curl http://127.0.0.1:8080/api/products
 2. 选择“导入项目”。
 3. 项目目录选择 `miniapp`。
 4. AppID 可以先使用测试号或替换 `project.config.json` 中的 `appid`。
-5. 本地开发阶段可关闭“校验合法域名”，真机调试时手机和 Mac 需要在同一个局域网。
+5. 答辩预览时可关闭“校验合法域名”，并保持默认服务器 API 地址。
 
 ## 启动优化
 

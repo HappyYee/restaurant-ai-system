@@ -1,0 +1,13 @@
+yee.earth, www.yee.earth {
+    encode zstd gzip
+
+    root * /srv/admin-web
+    try_files {path} /index.html
+    file_server
+}
+
+api.yee.earth {
+    encode zstd gzip
+
+    reverse_proxy backend:8080
+}
